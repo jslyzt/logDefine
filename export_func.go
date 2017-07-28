@@ -48,19 +48,19 @@ func anys2strings(anys []interface{}) []string {
 	return rtns
 }
 
-func replace(source string, args []interface{}) string {
+func replace(source, skey string, args []interface{}) string {
 	if len(source) <= 0 {
 		return source
 	}
 	strs := anys2strings(args)
 	strslen := len(strs)
 	outstr := ""
-	for _, key := range strings.Split(source, "#") {
+	for _, key := range strings.Split(source, skey) {
 		if len(key) <= 0 {
 			continue
 		}
 		if allNumber(key) == false {
-			outstr = outstr + "#" + key
+			outstr = outstr + skey + key
 		} else {
 			index, err := strconv.Atoi(key)
 			if err == nil && index >= 0 && index < strslen {

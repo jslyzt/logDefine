@@ -17,6 +17,7 @@ func (file *XmlLogFile) analysis() error {
 	if err != nil {
 		return err
 	}
+	defer fd.Close()
 	data, err := ioutil.ReadAll(fd)
 	if err != nil {
 		return err
