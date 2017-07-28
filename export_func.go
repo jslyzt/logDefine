@@ -63,8 +63,8 @@ func replace(source, skey string, args []interface{}) string {
 			outstr = outstr + skey + key
 		} else {
 			index, err := strconv.Atoi(key)
-			if err == nil && index >= 0 && index < strslen {
-				outstr = outstr + any2string(strs[index])
+			if err == nil && index > 0 && index <= strslen {
+				outstr = outstr + any2string(strs[index-1])
 			}
 		}
 	}
