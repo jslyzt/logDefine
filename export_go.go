@@ -43,6 +43,16 @@ type #1#_#2# struct {	// version #3#
 	})
 }
 
+// 结构序列化方法
+func gofmort_strfunc(file *XmlLogFile, info *XmlLogStruct) string {
+	return ""
+}
+
+// go文件序列化方法
+func gofmort_logfile(file *XmlLogFile) string {
+	return ""
+}
+
 // 导出 golang
 func (file *XmlLogFile) export_go() {
 
