@@ -8,6 +8,28 @@ import (
 	"os"
 )
 
+// 工具函数
+func (node *XmlLogNode) analysis() {
+	switch node.SType {
+	case "string":
+		node.Type = T_STRING
+	case "int":
+		node.Type = T_INT
+	case "float":
+		node.Type = T_FLOAT
+	case "double":
+		node.Type = T_DOUBLE
+	case "datetime":
+		node.Type = T_DATETIME
+	}
+}
+
+func (info *XmlLogStruct) analysis() {
+	for index := range info.Nodes {
+		info.Nodes[index].analysis()
+	}
+}
+
 // 分析
 func (file *XmlLogFile) analysis() error {
 	if file == nil || len(file.file) <= 0 {
@@ -26,25 +48,32 @@ func (file *XmlLogFile) analysis() error {
 	if err != nil {
 		return err
 	}
-	for _, node := range file.Logs {
-		file.maps[node.Name] = &node
+	for index := range file.Logs {
+		file.Logs[index].analysis()
 	}
 	return nil
 }
 
 // 导出
-func (file *XmlLogFile) export(types []int8) {
+func (file *XmlLogFile) Export(types []int8, outdir string) {
 	if file != nil {
 		for _, ntp := range types {
 			switch ntp {
 			case ET_GO:
-				file.export_go()
+				file.exportGo(outdir)
 			case ET_CPP:
-				file.export_cpp()
+				file.exportCpp(outdir)
 			default:
 				fmt.Printf("no support export type: %d\n", ntp)
 			}
 		}
+	}
+}
+
+func DefaultExport() []int8 {
+	return []int8{
+		ET_GO,
+		ET_CPP,
 	}
 }
 
@@ -53,7 +82,6 @@ func AnalysisFile(file string) *XmlLogFile {
 	xmllog := &XmlLogFile{
 		file: file,
 		Logs: make(XmlLogStructs, 0),
-		maps: make(XmlLogStrMap),
 	}
 	err := xmllog.analysis()
 	if err != nil {

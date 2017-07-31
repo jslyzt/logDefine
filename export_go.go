@@ -1,10 +1,14 @@
 package logDefine
 
 import (
+	"bytes"
 	"fmt"
+	"io/ioutil"
+	"os"
+	"strings"
 )
 
-func goget_nodeType(node *XmlLogNode) string {
+func gogetNodeType(node *XmlLogNode) string {
 	if node != nil {
 		switch node.Type {
 		case T_INT:
@@ -15,17 +19,28 @@ func goget_nodeType(node *XmlLogNode) string {
 			return "float64"
 		case T_STRING:
 			return "string"
+		case T_DATETIME:
+			return "time.Time"
 		}
 	}
 	return "string"
 }
 
 // 序列化结构
-func gofmort_struct(file *XmlLogFile, info *XmlLogStruct) string {
-	nodestr := ""
+func gofmortStruct(file *XmlLogFile, info *XmlLogStruct) string {
+	var buffer bytes.Buffer
 	for _, node := range info.Nodes {
-		nodestr = nodestr + fmt.Sprintf("\t%s %s // default: %s, desc: %s", node.Name,
-			goget_nodeType(&node), any2string(node.Defvalue), node.Desc)
+		buffer.WriteString(fmt.Sprintf("\t%s %s //",
+			node.Name,
+			gogetNodeType(&node)))
+		defstr := any2string(node.Defvalue)
+		if len(defstr) > 0 {
+			buffer.WriteString(fmt.Sprintf(" default: %s", defstr))
+		}
+		if len(node.Desc) > 0 {
+			buffer.WriteString(fmt.Sprintf(" desc: %s", node.Desc))
+		}
+		buffer.WriteString("\n")
 	}
 	return replace(`
 // #1# #2#结构定义
@@ -39,21 +54,67 @@ type #1#_#2# struct {	// version #3#
 		info.Name,
 		info.Version,
 		info.Desc,
+		buffer.String(),
+	})
+}
+
+// 通用序列化方法
+func gofmortDeffunc() string {
+	return `
+	import(
+		"github.com/jslyzt/logDefine"
+	)
+	`
+}
+
+// 结构序列化方法
+func gofmortStrfunc(file *XmlLogFile, info *XmlLogStruct) string {
+	var buffer bytes.Buffer
+	for _, node := range info.Nodes {
+		buffer.WriteString(fmt.Sprintf("node.%s, ", node.Name))
+	}
+	nodestr := buffer.String()
+	if len(nodestr) > 0 {
+		nodestr = strings.Trim(nodestr, ", ")
+	}
+	return replace(`
+// #1# #2#序列化方法
+func (node *#1#_#2#) ToString() string {
+	return logDefine.ToString(#3#)
+}
+`, "#", []interface{}{
+		file.Name,
+		info.Name,
 		nodestr,
 	})
 }
 
-// 结构序列化方法
-func gofmort_strfunc(file *XmlLogFile, info *XmlLogStruct) string {
-	return ""
-}
-
 // go文件序列化方法
-func gofmort_logfile(file *XmlLogFile) string {
-	return ""
+func gofmortLogfile(file *XmlLogFile) string {
+	var buffer bytes.Buffer
+	for _, strnode := range file.Logs {
+		buffer.WriteString(gofmortStruct(file, &strnode))
+		buffer.WriteString(gofmortStrfunc(file, &strnode))
+	}
+	return fmt.Sprintf(`
+package %s
+
+%s
+
+%s
+`, file.Name, gofmortDeffunc(), buffer.String())
 }
 
 // 导出 golang
-func (file *XmlLogFile) export_go() {
-
+func (file *XmlLogFile) exportGo(outdir string) bool {
+	fileName := fmt.Sprintf("%s/logDef_%s.go", outdir, file.Name)
+	fmt.Printf("save file: %s\n", fileName)
+	err := ioutil.WriteFile(fileName, []byte(gofmortLogfile(file)), os.ModePerm)
+	if err != nil {
+		fmt.Printf("save file %s failed, error %v", fileName, err)
+		return false
+	}
+	//runCmd("goreturns", fmt.Sprintf("-w %s", fileName))
+	runCmd("goreturns", "-w", fileName)
+	return true
 }

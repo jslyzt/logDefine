@@ -1,6 +1,8 @@
 package logDefine
 
 import (
+	"fmt"
+	"os/exec"
 	"strconv"
 	"strings"
 )
@@ -24,9 +26,25 @@ func any2string(any interface{}) string {
 		value = any.(string)
 	case bool:
 		value = strconv.FormatBool(any.(bool))
-	case int64, int, int8, int16, int32:
+	case int:
+		value = strconv.FormatInt(int64(any.(int)), 10)
+	case int8:
+		value = strconv.FormatInt(int64(any.(int8)), 10)
+	case int16:
+		value = strconv.FormatInt(int64(any.(int16)), 10)
+	case int32:
+		value = strconv.FormatInt(int64(any.(int32)), 10)
+	case int64:
 		value = strconv.FormatInt(any.(int64), 10)
-	case uint64, uint, uint8, uint16, uint32:
+	case uint:
+		value = strconv.FormatUint(uint64(any.(uint)), 10)
+	case uint8:
+		value = strconv.FormatUint(uint64(any.(uint8)), 10)
+	case uint16:
+		value = strconv.FormatUint(uint64(any.(uint16)), 10)
+	case uint32:
+		value = strconv.FormatUint(uint64(any.(uint32)), 10)
+	case uint64:
 		value = strconv.FormatUint(any.(uint64), 10)
 	case float32:
 		value = strconv.FormatFloat(any.(float64), 'f', 2, 32)
@@ -60,7 +78,7 @@ func replace(source, skey string, args []interface{}) string {
 			continue
 		}
 		if allNumber(key) == false {
-			outstr = outstr + skey + key
+			outstr = outstr + key
 		} else {
 			index, err := strconv.Atoi(key)
 			if err == nil && index > 0 && index <= strslen {
@@ -69,4 +87,21 @@ func replace(source, skey string, args []interface{}) string {
 		}
 	}
 	return outstr
+}
+
+func ToString(args []interface{}) string {
+	outstr := ""
+	for _, arg := range args {
+		outstr = outstr + any2string(arg) + "|"
+	}
+	return outstr
+}
+
+func runCmd(name string, arg ...string) {
+	cmd := exec.Command(name, arg...)
+	out, err := cmd.Output()
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(string(out))
 }
