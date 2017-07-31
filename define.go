@@ -8,6 +8,7 @@ const (
 	T_DOUBLE               // double
 	T_STRING               // string
 	T_DATETIME             // 时间日期
+	T_USERDEF              // 自定义类型
 )
 const (
 	ET_GO  int8 = iota // 导出go
@@ -16,10 +17,10 @@ const (
 
 // 节点定义
 type XmlLogNode struct {
-	Name     string      `xml:"name,attr"` // 节点名字
+	Xname    string      `xml:"name,attr"` // 节点名字
+	Name     string      // 真正名字
 	SType    string      `xml:"type,attr"` // 节点类型 -- xml
 	Type     int8        // 节点类型 -- true
-	Size     int16       `xml:"size,attr"`         // 节点长度
 	Defvalue interface{} `xml:"defaultvalue,attr"` // 节点默认值
 	Desc     string      `xml:"desc,attr"`         // 节点说明
 }
@@ -42,5 +43,6 @@ type XmlLogFile struct {
 	XMLName xml.Name      `xml:"logs"`         // 入口节点
 	Version int16         `xml:"version,attr"` // 版本号
 	Name    string        `xml:"name,attr"`    // 名字
-	Logs    XmlLogStructs `xml:"struct"`       // 日志数组
+	Stus    XmlLogStructs `xml:"struct"`       // 日志结构数组
+	Logs    XmlLogStructs `xml:"log"`          // 日志数组
 }

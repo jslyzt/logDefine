@@ -105,3 +105,16 @@ func runCmd(name string, arg ...string) {
 	}
 	fmt.Println(string(out))
 }
+
+func menberName(name string) string {
+	if len(name) <= 0 {
+		return ""
+	}
+	keys := []byte(name)
+	if len(keys) > 0 && keys[0] >= 'a' && keys[0] <= 'z' {
+		keys[0] -= 32
+	} else {
+		return name
+	}
+	return string(keys)
+}

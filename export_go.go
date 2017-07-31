@@ -21,6 +21,8 @@ func gogetNodeType(node *XmlLogNode) string {
 			return "string"
 		case T_DATETIME:
 			return "time.Time"
+		case T_USERDEF:
+			return node.SType
 		}
 	}
 	return "string"
@@ -30,9 +32,10 @@ func gogetNodeType(node *XmlLogNode) string {
 func gofmortStruct(file *XmlLogFile, info *XmlLogStruct) string {
 	var buffer bytes.Buffer
 	for _, node := range info.Nodes {
-		buffer.WriteString(fmt.Sprintf("\t%s %s //",
+		buffer.WriteString(fmt.Sprintf("\t%s %s `json:\"%s\"`//",
 			node.Name,
-			gogetNodeType(&node)))
+			gogetNodeType(&node),
+			node.Xname))
 		defstr := any2string(node.Defvalue)
 		if len(defstr) > 0 {
 			buffer.WriteString(fmt.Sprintf(" default: %s", defstr))
@@ -91,21 +94,14 @@ func (node *#1#_#2#) ToString() string {
 
 // 序列化json
 func gofmort2Json(file *XmlLogFile, info *XmlLogStruct) string {
-	var buffer bytes.Buffer
-	for _, node := range info.Nodes {
-		buffer.WriteString(fmt.Sprintf("\"%s\": node.%s,\n", node.Name, node.Name))
-	}
 	return replace(`
 // #1# #2#序列化方法
 func (node *#1#_#2#) ToJson() string {
-	return json.Marshal(map[string]interface{}{
-#3#
-	})
+	return json.Marshal(node)
 }
 `, "#", []interface{}{
 		file.Name,
 		info.Name,
-		buffer.String(),
 	})
 }
 
@@ -116,10 +112,14 @@ func gofmortStrfunc(file *XmlLogFile, info *XmlLogStruct) string {
 
 // go文件序列化方法
 func gofmortLogfile(file *XmlLogFile) string {
-	var buffer bytes.Buffer
-	for _, strnode := range file.Logs {
-		buffer.WriteString(gofmortStruct(file, &strnode))
-		buffer.WriteString(gofmortStrfunc(file, &strnode))
+	var bufStu bytes.Buffer
+	for _, node := range file.Stus {
+		bufStu.WriteString(gofmortStruct(file, &node))
+	}
+	var bufLog bytes.Buffer
+	for _, node := range file.Logs {
+		bufLog.WriteString(gofmortStruct(file, &node))
+		bufLog.WriteString(gofmortStrfunc(file, &node))
 	}
 	return fmt.Sprintf(`
 package %s
@@ -127,7 +127,9 @@ package %s
 %s
 
 %s
-`, file.Name, gofmortDeffunc(), buffer.String())
+
+%s
+`, file.Name, gofmortDeffunc(), bufStu.String(), bufLog.String())
 }
 
 // 导出 golang

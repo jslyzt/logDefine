@@ -21,7 +21,11 @@ func (node *XmlLogNode) analysis() {
 		node.Type = T_DOUBLE
 	case "datetime":
 		node.Type = T_DATETIME
+	default:
+		node.Type = T_USERDEF
 	}
+
+	node.Name = menberName(node.Xname)
 }
 
 func (info *XmlLogStruct) analysis() {
@@ -47,6 +51,9 @@ func (file *XmlLogFile) analysis() error {
 	err = xml.Unmarshal(data, file)
 	if err != nil {
 		return err
+	}
+	for index := range file.Stus {
+		file.Stus[index].analysis()
 	}
 	for index := range file.Logs {
 		file.Logs[index].analysis()
