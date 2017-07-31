@@ -17,12 +17,12 @@ const (
 
 // 节点定义
 type XmlLogNode struct {
-	Xname    string      `xml:"name,attr"` // 节点名字
-	Name     string      // 真正名字
-	SType    string      `xml:"type,attr"` // 节点类型 -- xml
-	Type     int8        // 节点类型 -- true
-	Defvalue interface{} `xml:"defaultvalue,attr"` // 节点默认值
-	Desc     string      `xml:"desc,attr"`         // 节点说明
+	Xname string `xml:"name,attr"` // 节点名字
+	Name  string // 真正名字
+	SType string `xml:"type,attr"` // 节点类型 -- xml
+	Type  int8   // 节点类型 -- true
+	//Defvalue interface{} `xml:"defaultvalue,attr"` // 节点默认值
+	Desc string `xml:"desc,attr"` // 节点说明
 }
 type XmlLogNodes []XmlLogNode
 
@@ -34,8 +34,7 @@ type XmlLogStruct struct {
 	Nodes   XmlLogNodes `xml:"entry"`        // 节点列表
 }
 type XmlLogStructs []XmlLogStruct
-
-//type XmlLogStrMap map[string]*XmlLogStruct
+type XmlLogStrMap map[string]*XmlLogStruct
 
 // 日志文件定义
 type XmlLogFile struct {
@@ -45,4 +44,5 @@ type XmlLogFile struct {
 	Name    string        `xml:"name,attr"`    // 名字
 	Stus    XmlLogStructs `xml:"struct"`       // 日志结构数组
 	Logs    XmlLogStructs `xml:"log"`          // 日志数组
+	StuMp   XmlLogStrMap  // 日志结构map
 }

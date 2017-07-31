@@ -1,87 +1,32 @@
-<?xml version="1.0" encoding="utf-8" name="Log" ?>
-<logs version="1" name="Log">
-	<!--服务器状态日志-->
-	<struct  name="GameSvrState" filter="1"  version="1" desc="服务器状态流水，每5分钟一条日志">
-		<entry  name="dtEventTime"        type="datetime"                    desc=" 格式 YYYY-MM-DD HH:MM:SS" />
-		<entry  name="vGameIP"            type="string"        size="32"                        desc="服务器IP" />
-		<entry  name="iZoneAreaID"        type="int"            index="1"            defaultvalue="0"    desc="针对分区分服的游戏填写分区id，用来唯一标示一个区；非分区分服游戏请填写0"/>
+<?xml version="1.0" encoding="utf-8"?>
+<logs version="1" name="logger">
+
+	<!--识别图片信息-->
+	<struct name="ResultImage" version="1" desc="识别图片信息">
+		<entry  name="imageID"           type="string"         desc="识别服务器返回的图片target_id" />
+		<entry  name="serverIP"          type="string"         desc="识别服务器IP" />
+		<entry  name="imageURL"          type="string"         desc="识别服务器返回的图片地址"/>
+		<entry  name="score"             type="float"          desc="图片得分"/>
 	</struct>
 
-	<!--玩家注册表-->
-	<struct  name="PlayerRegister"  version="1" desc="玩家注册">
-		<entry  name="GameSvrId"          type="string"        size="25"    desc="登录的游戏服务器编号" />
-		<entry  name="dtEventTime"        type="datetime"                    desc="游戏事件的时间, 格式 YYYY-MM-DD HH:MM:SS" />
-		<entry  name="vGameAppid"         type="string"        size="32"                        desc="游戏APPID" />
-		<entry  name="PlatID"             type="int"                        defaultvalue="0"    desc="ios 0 /android 1"/>
-		<entry  name="iZoneAreaID"        type="int"           index="1"    defaultvalue="0"    desc="针对分区分服的游戏填写分区id，用来唯一标示一个区；非分区分服游戏请填写0"/>
-		<entry  name="vopenid"            type="string"        size="64"                        desc="用户OPENID号" />
-		<entry  name="ClientVersion"      type="string"        size="64"    defaultvalue="NULL" desc="客户端版本"/>
-		<entry  name="SystemSoftware"     type="string"        size="64"    defaultvalue="NULL" desc="移动终端操作系统版本"/>
-		<entry  name="SystemHardware"     type="string"        size="64"    defaultvalue="NULL" desc="移动终端机型"/>
-		<entry  name="TelecomOper"        type="string"        size="64"    defaultvalue="NULL" desc="运营商"/>
-		<entry  name="Network"            type="string"        size="64"    defaultvalue="NULL" desc="3G/WIFI/2G"/>
-		<entry  name="ScreenWidth"        type="int"                        defaultvalue="0"    desc="显示屏宽度"/>
-		<entry  name="ScreenHight"        type="int"                        defaultvalue="0"    desc="显示屏高度"/>
-		<entry  name="Density"            type="float"                      defaultvalue="0"    desc="像素密度"/>
-		<entry  name="RegChannel"         type="int"                        defaultvalue="0"    desc="注册渠道"/>
-		<entry  name="CpuHardware"        type="string"        size="64"    defaultvalue="NULL" desc="cpu类型|频率|核数"/>
-		<entry  name="Memory"             type="int"                        defaultvalue="0"    desc="内存信息单位M"/>
-		<entry  name="GLRender"           type="string"       size="64"    defaultvalue="NULL"  desc="opengl render信息"/>
-		<entry  name="GLVersion"          type="string"      size="64"    defaultvalue="NULL"   desc="opengl版本信息"/>
-		<entry  name="DeviceId"           type="string"       size="64"    defaultvalue="NULL"  desc="设备ID"/>
-	</struct>
-
-	<!--玩家登录表-->
-	<struct  name="PlayerLogin"  version="1" desc="玩家登陆">
-		<entry  name="GameSvrId"          type="string"        size="25"                            desc="登录的游戏服务器编号" />
-		<entry  name="dtEventTime"        type="datetime"                                           desc="游戏事件的时间, 格式 YYYY-MM-DD HH:MM:SS" />
-		<entry  name="vGameAppid"         type="string"        size="32"                            desc="游戏APPID" />
-		<entry  name="PlatID"             type="int"                        defaultvalue="0"        desc="ios 0/android 1"/>
-		<entry  name="iZoneAreaID"        type="int"           index="1"    defaultvalue="0"        desc="针对分区分服的游戏填写分区id，用来唯一标示一个区；非分区分服游戏请填写0"/>
-		<entry  name="vopenid"            type="string"        size="64"                            desc="用户OPENID号" />
-		<entry  name="Level"              type="int"                                                desc="等级" />
-		<entry  name="PlayerFriendsNum"   type="int"                                                desc="玩家好友数量"/>
-		<entry  name="ClientVersion"      type="string"        size="64"    defaultvalue="NULL"     desc="客户端版本"/>
-		<entry  name="SystemSoftware"     type="string"        size="64"    defaultvalue="NULL"     desc="移动终端操作系统版本"/>
-		<entry  name="SystemHardware"     type="string"        size="64"    defaultvalue="NULL"     desc="移动终端机型"/>
-		<entry  name="TelecomOper"        type="string"        size="64"    defaultvalue="NULL"     desc="运营商"/>
-		<entry  name="Network"            type="string"        size="64"    defaultvalue="NULL"     desc="3G/WIFI/2G"/>
-		<entry  name="ScreenWidth"        type="int"                        defaultvalue="0"        desc="显示屏宽度"/>
-		<entry  name="ScreenHight"        type="int"                        defaultvalue="0"        desc="显示屏高度"/>
-		<entry  name="Density"            type="float"                      defaultvalue="0"        desc="像素密度"/>
-		<entry  name="LoginChannel"       type="int"                        defaultvalue="0"        desc="登录渠道"/>
-		<entry  name="vRoleID"            type="string"        size="64"    defaultvalue="NULL"     desc="玩家角色ID"/>
-		<entry  name="vRoleName"          type="string"        size="64"    defaultvalue="NULL"     desc="玩家角色名"/>
-		<entry  name="CpuHardware"        type="string"        size="64"    defaultvalue="NULL"     desc="cpu类型-频率-核数"/>
-		<entry  name="Memory"             type="int"                        defaultvalue="0"        desc="内存信息单位M"/>
-		<entry  name="GLRender"           type="string"        size="64"    defaultvalue="NULL"     desc="opengl render信息"/>
-		<entry  name="GLVersion"          type="string"        size="64"    defaultvalue="NULL"     desc="opengl版本信息"/>
-		<entry  name="DeviceId"           type="string"        size="64"    defaultvalue="NULL"     desc="设备ID"/>
-	</struct>
-
-	<!--关卡/副本/对局流水表(关卡/副本/对局结束触发日志)-->
-	<macrosgroup name="RESULT" desc="不要随意修改，否则影响统计结果" >
-		<macro name="SUCCESS"     value="1" desc="成功"/>
-		<macro name="FAIL"        value="0" desc="失败"/>
-	</macrosgroup>
-	<macrosgroup name="BATTLETYPE">
-		<macro name="BATTLE_PVE"       value="0" desc="单人游戏"/>
-		<macro name="BATTLE_PVP"       value="1" desc="对战游戏"/>
-		<macro name="BATTLE_OTHER"     value="2" desc="其他对局"/>
-	</macrosgroup>
-	<struct name="RoundFlow" version="1" desc="单局结束数据流水">
-		<entry  name="GameSvrId"          type="string"          size="25"                          desc="登录的游戏服务器编号" />
-		<entry  name="dtEventTime"        type="datetime"                                           desc="游戏事件的时间, 格式 YYYY-MM-DD HH:MM:SS" />
-		<entry  name="vGameAppid"         type="string"         size="32"                           desc="游戏APPID" />
-		<entry  name="PlatID"             type="int"                            defaultvalue="0"    desc="ios 0/android 1"/>
-		<entry  name="iZoneAreaID"        type="int"            index="1"       defaultvalue="0"    desc="针对分区分服的游戏填写分区id，用来唯一标示一个区；非分区分服游戏请填写0"/>
-		<entry  name="vopenid"            type="string"         size="64"                           desc="玩家" />
-		<entry  name="BattleID"           type="int"                                                desc="关卡id或者副本id[副本ID必须有序]，对局时填0" />
-		<entry  name="BattleType"         type="int"                                                desc="战斗类型 对应BATTLETYPE,其它说明参考FAQ文档" />
-		<entry  name="RoundScore"         type="int"         defaultvalue="0"              desc="本局分数,无得分的填0" />
-		<entry  name="RoundTime"          type="int"                                                desc="对局时长(秒)" />
-		<entry  name="Result"             type="int"                                                desc="单局结果，参考 Result" />
-		<entry  name="Rank"               type="int"                                                desc="排名" />
-		<entry  name="Gold"               type="int"                                                desc="金钱" />
-	</struct>
+	<!--发送到存储系统的日志结构体-->
+	<log name="LogData"  version="1" desc="发送到存储系统的日志结构体">
+		<entry  name="requestID"          type="string"        desc="请求的ID" />
+		<entry  name="token"              type="string"        desc="鉴权令牌" />
+		<entry  name="latitude"           type="double"        desc="纬度" />
+		<entry  name="longitude"          type="double"        desc="经度"/>
+		<entry  name="collection"         type="string"        desc="识别图片，多图集使用逗号隔开"/>
+		<entry  name="number"             type="int"           desc="返回结果的top" />
+		<entry  name="clientIP"           type="string"        desc="客户端IP"/>
+		<entry  name="image"              type="string"        desc="用户请求图片"/>
+		<entry  name="resultImage"        type="[]*ResultImage" desc="识别服务器返回的图片"/>
+		<entry  name="result"             type="map[string]interface{}" desc="返回客户的端的结果json"/>
+		<entry  name="createTime"         type="string"        desc="请求的时间"/>
+		<entry  name="timeconst"          type="double"        desc="请求总耗时"/>
+		<entry  name="appKey"             type="string"        desc="应用ID"/>
+		<entry  name="appname"            type="string"        desc="应用名称"/>
+		<entry  name="useragent"          type="string"        desc="用户代理"/>
+		<entry  name="version"            type="string"        desc="版本号"/>
+		<entry  name="recognizeTimeConsuming" type="double"    desc="getFeature时间"/>
+	</log>
 </logs>

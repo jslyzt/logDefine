@@ -36,10 +36,12 @@ func gofmortStruct(file *XmlLogFile, info *XmlLogStruct) string {
 			node.Name,
 			gogetNodeType(&node),
 			node.Xname))
-		defstr := any2string(node.Defvalue)
-		if len(defstr) > 0 {
-			buffer.WriteString(fmt.Sprintf(" default: %s", defstr))
-		}
+		/*
+			defstr := any2string(node.Defvalue)
+			if len(defstr) > 0 {
+				buffer.WriteString(fmt.Sprintf(" default: %s", defstr))
+			}
+		*/
 		if len(node.Desc) > 0 {
 			buffer.WriteString(fmt.Sprintf(" desc: %s", node.Desc))
 		}
@@ -49,6 +51,7 @@ func gofmortStruct(file *XmlLogFile, info *XmlLogStruct) string {
 // #1# #2#结构定义
 // #4#
 type #1#_#2# struct {	// version #3#
+	logDefine.LogdefInterface
 #5#
 }
 
@@ -115,6 +118,7 @@ func gofmortLogfile(file *XmlLogFile) string {
 	var bufStu bytes.Buffer
 	for _, node := range file.Stus {
 		bufStu.WriteString(gofmortStruct(file, &node))
+		bufStu.WriteString(gofmortStrfunc(file, &node))
 	}
 	var bufLog bytes.Buffer
 	for _, node := range file.Logs {

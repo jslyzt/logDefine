@@ -3,9 +3,14 @@ package logDefine
 import (
 	"fmt"
 	"os/exec"
+	"reflect"
 	"strconv"
 	"strings"
 )
+
+type LogdefInterface interface {
+	ToString() string
+}
 
 func allNumber(key string) bool {
 	if len(key) <= 0 {
@@ -17,6 +22,30 @@ func allNumber(key string) bool {
 		}
 	}
 	return true
+}
+
+func reflect2string(any interface{}) string {
+	anyt := reflect.TypeOf(any)
+	switch anyt.Kind() {
+	case reflect.Struct:
+		it := any.(LogdefInterface)
+		return it.ToString()
+	case reflect.Map:
+		ostr := ""
+		anyv := reflect.ValueOf(any)
+		for _, v := range anyv.MapKeys() {
+			ostr = ostr + fmt.Sprintf("%s:%s;", any2string(v), any2string(anyv.MapIndex(v)))
+		}
+		return ostr
+	case reflect.Slice, reflect.Array:
+		ostr := ""
+		anyv := reflect.ValueOf(any)
+		for i := 0; i < anyv.Len(); i++ {
+			ostr = ostr + fmt.Sprintf("%s,", any2string(anyv.Index(i)))
+		}
+		return ostr
+	}
+	return ""
 }
 
 func any2string(any interface{}) string {
@@ -54,6 +83,8 @@ func any2string(any interface{}) string {
 		value = anyi()
 	case func() bool:
 		value = any2string(anyi())
+	default:
+		value = reflect2string(any)
 	}
 	return value
 }

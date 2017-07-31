@@ -6,10 +6,39 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"strings"
 )
 
 // 工具函数
-func (node *XmlLogNode) analysis() {
+func (node *XmlLogNode) alsisStuType(file *XmlLogFile) {
+	node.Type = T_USERDEF
+	if len(file.StuMp) > 0 {
+		keys := []byte(node.SType)
+		lkey := len(keys)
+		tkey := ""
+		if lkey > 2 && keys[0] == '[' && keys[1] == ']' { // 数组
+			tkey = string(keys[2:])
+			if lkey > 3 && keys[2] == '*' {
+				tkey = string(keys[3:])
+			}
+		} else if lkey > 4 && string(keys[:5]) == "map[" { // map
+			mindex := strings.Index(node.SType, "]")
+			if mindex >= 0 {
+				tkey = string(keys[mindex+1:])
+				if len(tkey) > 0 && keys[mindex+2] == '*' {
+					tkey = string(keys[mindex+2:])
+				}
+			}
+		}
+		if len(tkey) > 0 {
+			if _, ok := file.StuMp[tkey]; ok {
+				node.SType = strings.Replace(node.SType, tkey, fmt.Sprintf("%s_%s", file.Name, tkey), 100)
+			}
+		}
+	}
+}
+
+func (node *XmlLogNode) analysis(file *XmlLogFile) {
 	switch node.SType {
 	case "string":
 		node.Type = T_STRING
@@ -22,15 +51,15 @@ func (node *XmlLogNode) analysis() {
 	case "datetime":
 		node.Type = T_DATETIME
 	default:
-		node.Type = T_USERDEF
+		node.alsisStuType(file)
 	}
 
 	node.Name = menberName(node.Xname)
 }
 
-func (info *XmlLogStruct) analysis() {
+func (info *XmlLogStruct) analysis(file *XmlLogFile) {
 	for index := range info.Nodes {
-		info.Nodes[index].analysis()
+		info.Nodes[index].analysis(file)
 	}
 }
 
@@ -53,10 +82,12 @@ func (file *XmlLogFile) analysis() error {
 		return err
 	}
 	for index := range file.Stus {
-		file.Stus[index].analysis()
+		node := &file.Stus[index]
+		node.analysis(file)
+		file.StuMp[node.Name] = node
 	}
 	for index := range file.Logs {
-		file.Logs[index].analysis()
+		file.Logs[index].analysis(file)
 	}
 	return nil
 }
@@ -87,8 +118,10 @@ func DefaultExport() []int8 {
 // 分析文件
 func AnalysisFile(file string) *XmlLogFile {
 	xmllog := &XmlLogFile{
-		file: file,
-		Logs: make(XmlLogStructs, 0),
+		file:  file,
+		Stus:  make(XmlLogStructs, 0),
+		Logs:  make(XmlLogStructs, 0),
+		StuMp: make(XmlLogStrMap, 0),
 	}
 	err := xmllog.analysis()
 	if err != nil {

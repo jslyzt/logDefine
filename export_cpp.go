@@ -33,10 +33,12 @@ func cppfmortStruct(file *XmlLogFile, info *XmlLogStruct) string {
 		buffer.WriteString(fmt.Sprintf("\t%s %s; //",
 			cppgetNodeType(&node),
 			node.Name))
-		defstr := any2string(node.Defvalue)
-		if len(defstr) > 0 {
-			buffer.WriteString(fmt.Sprintf(" default: %s", defstr))
-		}
+		/*
+			defstr := any2string(node.Defvalue)
+			if len(defstr) > 0 {
+				buffer.WriteString(fmt.Sprintf(" default: %s", defstr))
+			}
+		*/
 		if len(node.Desc) > 0 {
 			buffer.WriteString(fmt.Sprintf(" desc: %s", node.Desc))
 		}

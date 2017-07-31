@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	fileName := flag.String("file", "", "please input the xml file to analysis")
+	fileName := flag.String("file", "template.xml", "please input the xml file to analysis")
 	outDir := flag.String("odir", "./", "please input the dir out file to store")
 	fileDir := flag.String("idir", "", "please input the dir files to analysis")
 	outModel := flag.String("model", "go;cpp", "please input the file type to export")
