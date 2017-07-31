@@ -108,7 +108,7 @@ namespace %s{
 
 // 导出 golang
 func (file *XmlLogFile) exportCpp(outdir string) bool {
-	fileName := fmt.Sprintf("%s/logDef_%s.h", outdir, file.Name)
+	fileName := fmt.Sprintf("%s/logdef_%s.h", outdir, file.Name)
 	fmt.Printf("save file: %s\n", fileName)
 	err := ioutil.WriteFile(fileName, []byte(cppfmortLogfile(file)), os.ModePerm)
 	if err != nil {

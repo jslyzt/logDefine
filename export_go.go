@@ -67,8 +67,8 @@ func gofmortDeffunc() string {
 	`
 }
 
-// 结构序列化方法
-func gofmortStrfunc(file *XmlLogFile, info *XmlLogStruct) string {
+// 序列化string
+func gofmort2String(file *XmlLogFile, info *XmlLogStruct) string {
 	var buffer bytes.Buffer
 	for _, node := range info.Nodes {
 		buffer.WriteString(fmt.Sprintf("node.%s, ", node.Name))
@@ -89,6 +89,31 @@ func (node *#1#_#2#) ToString() string {
 	})
 }
 
+// 序列化json
+func gofmort2Json(file *XmlLogFile, info *XmlLogStruct) string {
+	var buffer bytes.Buffer
+	for _, node := range info.Nodes {
+		buffer.WriteString(fmt.Sprintf("\"%s\": node.%s,\n", node.Name, node.Name))
+	}
+	return replace(`
+// #1# #2#序列化方法
+func (node *#1#_#2#) ToJson() string {
+	return json.Marshal(map[string]interface{}{
+#3#
+	})
+}
+`, "#", []interface{}{
+		file.Name,
+		info.Name,
+		buffer.String(),
+	})
+}
+
+// 结构序列化方法
+func gofmortStrfunc(file *XmlLogFile, info *XmlLogStruct) string {
+	return gofmort2String(file, info) + gofmort2Json(file, info)
+}
+
 // go文件序列化方法
 func gofmortLogfile(file *XmlLogFile) string {
 	var buffer bytes.Buffer
@@ -107,7 +132,7 @@ package %s
 
 // 导出 golang
 func (file *XmlLogFile) exportGo(outdir string) bool {
-	fileName := fmt.Sprintf("%s/logDef_%s.go", outdir, file.Name)
+	fileName := fmt.Sprintf("%s/logdef_%s.go", outdir, file.Name)
 	fmt.Printf("save file: %s\n", fileName)
 	err := ioutil.WriteFile(fileName, []byte(gofmortLogfile(file)), os.ModePerm)
 	if err != nil {
