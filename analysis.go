@@ -32,7 +32,7 @@ func (node *XmlLogNode) alsisStuType(file *XmlLogFile) {
 		}
 		if len(tkey) > 0 {
 			if _, ok := file.StuMp[tkey]; ok {
-				node.SType = strings.Replace(node.SType, tkey, fmt.Sprintf("%s_%s", file.Name, tkey), 100)
+				node.SType = strings.Replace(node.SType, tkey, fmt.Sprintf("%s_%s", file.MName, tkey), 100)
 			}
 		}
 	}
@@ -81,6 +81,7 @@ func (file *XmlLogFile) analysis() error {
 	if err != nil {
 		return err
 	}
+	file.MName = menberName(file.Name)
 	for index := range file.Stus {
 		node := &file.Stus[index]
 		node.analysis(file)

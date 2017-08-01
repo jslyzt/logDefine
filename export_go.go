@@ -50,16 +50,16 @@ func gofmortStruct(file *XmlLogFile, info *XmlLogStruct) string {
 	return replace(`
 // #1# #2#结构定义
 // #4#
-type #1#_#2# struct {	// version #3#
+type #6#_#2# struct {	// version #3#
 #5#
 }
-
 `, "#", []interface{}{
 		file.Name,
 		info.Name,
 		info.Version,
 		info.Desc,
 		buffer.String(),
+		file.MName,
 	})
 }
 
@@ -84,13 +84,14 @@ func gofmort2String(file *XmlLogFile, info *XmlLogStruct) string {
 	}
 	return replace(`
 // #1# #2#序列化方法
-func (node *#1#_#2#) ToString() string {
+func (node *#4#_#2#) ToString() string {
 	return logDefine.ToString(#3#)
 }
 `, "#", []interface{}{
 		file.Name,
 		info.Name,
 		nodestr,
+		file.MName,
 	})
 }
 
@@ -98,7 +99,7 @@ func (node *#1#_#2#) ToString() string {
 func gofmort2Json(file *XmlLogFile, info *XmlLogStruct) string {
 	return replace(`
 // #1# #2#序列化方法
-func (node *#1#_#2#) ToJson() string {
+func (node *#3#_#2#) ToJson() string {
 	data, err := json.Marshal(node)
 	if err == nil {
 		return string(data)
@@ -108,6 +109,7 @@ func (node *#1#_#2#) ToJson() string {
 `, "#", []interface{}{
 		file.Name,
 		info.Name,
+		file.MName,
 	})
 }
 

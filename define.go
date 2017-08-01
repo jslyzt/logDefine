@@ -42,7 +42,8 @@ type XmlLogFile struct {
 	XMLName xml.Name      `xml:"logs"`         // 入口节点
 	Version int16         `xml:"version,attr"` // 版本号
 	Name    string        `xml:"name,attr"`    // 名字
-	Stus    XmlLogStructs `xml:"struct"`       // 日志结构数组
-	Logs    XmlLogStructs `xml:"log"`          // 日志数组
+	MName   string        // 大写名字
+	Stus    XmlLogStructs `xml:"struct"` // 日志结构数组
+	Logs    XmlLogStructs `xml:"log"`    // 日志数组
 	StuMp   XmlLogStrMap  // 日志结构map
 }
