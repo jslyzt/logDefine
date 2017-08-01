@@ -51,7 +51,6 @@ func gofmortStruct(file *XmlLogFile, info *XmlLogStruct) string {
 // #1# #2#结构定义
 // #4#
 type #1#_#2# struct {	// version #3#
-	logDefine.LogdefInterface
 #5#
 }
 
@@ -100,7 +99,11 @@ func gofmort2Json(file *XmlLogFile, info *XmlLogStruct) string {
 	return replace(`
 // #1# #2#序列化方法
 func (node *#1#_#2#) ToJson() string {
-	return json.Marshal(node)
+	data, err := json.Marshal(node)
+	if err == nil {
+		return string(data)
+	}
+	return ""
 }
 `, "#", []interface{}{
 		file.Name,

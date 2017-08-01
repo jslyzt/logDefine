@@ -8,10 +8,6 @@ import (
 	"strings"
 )
 
-type LogdefInterface interface {
-	ToString() string
-}
-
 func allNumber(key string) bool {
 	if len(key) <= 0 {
 		return false
@@ -26,20 +22,39 @@ func allNumber(key string) bool {
 
 func reflect2string(any interface{}) string {
 	anyt := reflect.TypeOf(any)
-	switch anyt.Kind() {
-	case reflect.Struct:
-		it := any.(LogdefInterface)
-		return it.ToString()
+	anyk := anyt.Kind()
+	anyv := reflect.ValueOf(any)
+	switch anyk {
+	case reflect.Bool:
+		return any2string(anyv.Bool())
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		return any2string(anyv.Int())
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
+		return any2string(anyv.Uint())
+	case reflect.Float32, reflect.Float64:
+		return any2string(anyv.Float())
+	case reflect.Complex64, reflect.Complex128:
+		return any2string(anyv.Complex())
+	case reflect.String:
+		return anyv.String()
+	case reflect.Struct, reflect.Ptr:
+		if anyv.IsValid() {
+			tfunc := anyv.MethodByName("ToString")
+			if tfunc.IsValid() {
+				rel := tfunc.Call([]reflect.Value{})
+				if len(rel) > 0 {
+					return fmt.Sprintf("{%s}", rel[0].String())
+				}
+			}
+		}
 	case reflect.Map:
 		ostr := ""
-		anyv := reflect.ValueOf(any)
 		for _, v := range anyv.MapKeys() {
 			ostr = ostr + fmt.Sprintf("%s:%s;", any2string(v), any2string(anyv.MapIndex(v)))
 		}
 		return ostr
 	case reflect.Slice, reflect.Array:
 		ostr := ""
-		anyv := reflect.ValueOf(any)
 		for i := 0; i < anyv.Len(); i++ {
 			ostr = ostr + fmt.Sprintf("%s,", any2string(anyv.Index(i)))
 		}
@@ -76,13 +91,19 @@ func any2string(any interface{}) string {
 	case uint64:
 		value = strconv.FormatUint(any.(uint64), 10)
 	case float32:
-		value = strconv.FormatFloat(any.(float64), 'f', 2, 32)
+		value = strconv.FormatFloat(float64(any.(float32)), 'f', 2, 32)
 	case float64:
 		value = strconv.FormatFloat(any.(float64), 'f', 4, 64)
 	case func() string:
 		value = anyi()
 	case func() bool:
 		value = any2string(anyi())
+	case reflect.Value:
+		if anyi.IsValid() && anyi.CanInterface() {
+			value = reflect2string(anyi.Interface())
+		} else {
+			value = reflect2string(any)
+		}
 	default:
 		value = reflect2string(any)
 	}
@@ -120,7 +141,7 @@ func replace(source, skey string, args []interface{}) string {
 	return outstr
 }
 
-func ToString(args []interface{}) string {
+func ToString(args ...interface{}) string {
 	outstr := ""
 	for _, arg := range args {
 		outstr = outstr + any2string(arg) + "|"
