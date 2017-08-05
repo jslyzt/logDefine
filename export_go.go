@@ -73,7 +73,41 @@ func gofmortDeffunc() string {
 }
 
 // 序列化string
-func gofmort2String(file *XmlLogFile, info *XmlLogStruct) string {
+func gofmortstrFuncStruct() string {
+	return `
+// #1# #2#序列化方法
+func (node *#4#_#2#) ToString() string {
+	return logDefine.ToString(#3#)
+}
+`
+}
+
+func gofmortstrFuncLog() string {
+	return `
+// #1# #2#序列化方法
+func (node *#4#_#2#) ToString() string {
+	return node.ToAString(node.GetAppend())
+}
+func (node *#4#_#2#) ToAString(arr []interface{}) string {
+	strlog := logDefine.ToString(#3#)
+	if len(arr) > 0 {
+		strlog = logDefine.ToString(arr...) + strlog
+	}
+	return strlog
+}
+func (node *#4#_#2#) GetAlias() string {
+	return "#5#"
+}
+func (node *#4#_#2#) GetAppend() []interface{} {
+	return []interface{}{
+		node.GetAlias(),
+		logDefine.GetTime(nil),
+	}
+}
+`
+}
+
+func gofmort2String(file *XmlLogFile, info *XmlLogStruct, bstu bool) string {
 	var buffer bytes.Buffer
 	for _, node := range info.Nodes {
 		buffer.WriteString(fmt.Sprintf("node.%s, ", node.Name))
@@ -82,16 +116,18 @@ func gofmort2String(file *XmlLogFile, info *XmlLogStruct) string {
 	if len(nodestr) > 0 {
 		nodestr = strings.Trim(nodestr, ", ")
 	}
-	return replace(`
-// #1# #2#序列化方法
-func (node *#4#_#2#) ToString() string {
-	return logDefine.ToString(#3#)
-}
-`, "#", []interface{}{
+	var fmortstr string
+	if bstu == true {
+		fmortstr = gofmortstrFuncStruct()
+	} else {
+		fmortstr = gofmortstrFuncLog()
+	}
+	return replace(fmortstr, "#", []interface{}{
 		file.Name,
 		info.Name,
 		nodestr,
 		file.MName,
+		info.Alias,
 	})
 }
 
@@ -114,8 +150,8 @@ func (node *#3#_#2#) ToJson() string {
 }
 
 // 结构序列化方法
-func gofmortStrfunc(file *XmlLogFile, info *XmlLogStruct) string {
-	return gofmort2String(file, info) + gofmort2Json(file, info)
+func gofmortStrfunc(file *XmlLogFile, info *XmlLogStruct, bstu bool) string {
+	return gofmort2String(file, info, bstu) + gofmort2Json(file, info)
 }
 
 // go文件序列化方法
@@ -123,12 +159,12 @@ func gofmortLogfile(file *XmlLogFile) string {
 	var bufStu bytes.Buffer
 	for _, node := range file.Stus {
 		bufStu.WriteString(gofmortStruct(file, &node))
-		bufStu.WriteString(gofmortStrfunc(file, &node))
+		bufStu.WriteString(gofmortStrfunc(file, &node, true))
 	}
 	var bufLog bytes.Buffer
 	for _, node := range file.Logs {
 		bufLog.WriteString(gofmortStruct(file, &node))
-		bufLog.WriteString(gofmortStrfunc(file, &node))
+		bufLog.WriteString(gofmortStrfunc(file, &node, false))
 	}
 	return fmt.Sprintf(`
 package %s

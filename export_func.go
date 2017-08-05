@@ -6,6 +6,7 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func allNumber(key string) bool {
@@ -43,22 +44,22 @@ func reflect2string(any interface{}) string {
 			if tfunc.IsValid() {
 				rel := tfunc.Call([]reflect.Value{})
 				if len(rel) > 0 {
-					return fmt.Sprintf("{%s}", rel[0].String())
+					return fmt.Sprintf("%s", rel[0].String())
 				}
 			}
 		}
 	case reflect.Map:
-		ostr := ""
+		ostr := "{"
 		for _, v := range anyv.MapKeys() {
 			ostr = ostr + fmt.Sprintf("%s:%s;", any2string(v), any2string(anyv.MapIndex(v)))
 		}
-		return ostr
+		return ostr + "}"
 	case reflect.Slice, reflect.Array:
-		ostr := ""
+		ostr := "["
 		for i := 0; i < anyv.Len(); i++ {
 			ostr = ostr + fmt.Sprintf("%s,", any2string(anyv.Index(i)))
 		}
-		return ostr
+		return ostr + "]"
 	}
 	return ""
 }
@@ -169,4 +170,12 @@ func menberName(name string) string {
 		return name
 	}
 	return string(keys)
+}
+
+func GetTime(tm *time.Time) string {
+	if tm == nil {
+		return time.Now().Format(TIME_FORMATE_UNIX)
+	} else {
+		return tm.Format(TIME_FORMATE_UNIX)
+	}
 }

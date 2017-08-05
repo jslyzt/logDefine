@@ -61,6 +61,9 @@ func (info *XmlLogStruct) analysis(file *XmlLogFile) {
 	for index := range info.Nodes {
 		info.Nodes[index].analysis(file)
 	}
+	if len(info.Alias) <= 0 {
+		info.Alias = strings.ToLower(info.Name)
+	}
 }
 
 // 分析

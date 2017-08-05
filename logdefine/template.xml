@@ -10,7 +10,7 @@
 	</struct>
 
 	<!--发送到存储系统的日志结构体-->
-	<log name="LogData"  version="1" desc="发送到存储系统的日志结构体">
+	<log name="LogData" alias="" version="1" desc="发送到存储系统的日志结构体">
 		<entry  name="requestID"          type="string"        desc="请求的ID" />
 		<entry  name="token"              type="string"        desc="鉴权令牌" />
 		<entry  name="latitude"           type="double"        desc="纬度" />

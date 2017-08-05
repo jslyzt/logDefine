@@ -15,6 +15,10 @@ const (
 	ET_CPP             // 导出c++
 )
 
+var (
+	TIME_FORMATE_UNIX = "2006-01-02T15:04:05+08:00"
+)
+
 // 节点定义
 type XmlLogNode struct {
 	Xname string `xml:"name,attr"` // 节点名字
@@ -28,7 +32,8 @@ type XmlLogNodes []XmlLogNode
 
 // 日志描述定义
 type XmlLogStruct struct {
-	Name    string      `xml:"name,attr"`    // 日志名字
+	Name    string      `xml:"name,attr"`    // 名字
+	Alias   string      `xml:"alias,attr"`   // 别名
 	Version int16       `xml:"version,attr"` // 版本号
 	Desc    string      `xml:"desc,attr"`    // 说明
 	Nodes   XmlLogNodes `xml:"entry"`        // 节点列表
