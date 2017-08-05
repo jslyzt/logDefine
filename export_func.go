@@ -44,7 +44,7 @@ func reflect2string(any interface{}) string {
 			if tfunc.IsValid() {
 				rel := tfunc.Call([]reflect.Value{})
 				if len(rel) > 0 {
-					return fmt.Sprintf("%s", rel[0].String())
+					return fmt.Sprintf("(%s)", rel[0].String())
 				}
 			}
 		}

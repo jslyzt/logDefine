@@ -15,7 +15,7 @@ func (node *XmlLogNode) alsisStuType(file *XmlLogFile) {
 	if len(file.StuMp) > 0 {
 		keys := []byte(node.SType)
 		lkey := len(keys)
-		tkey := ""
+		tkey := node.SType
 		if lkey > 2 && keys[0] == '[' && keys[1] == ']' { // 数组
 			tkey = string(keys[2:])
 			if lkey > 3 && keys[2] == '*' {

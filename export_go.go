@@ -76,7 +76,7 @@ func gofmortDeffunc() string {
 func gofmortstrFuncStruct() string {
 	return `
 // #1# #2#序列化方法
-func (node *#4#_#2#) ToString() string {
+func (node #4#_#2#) ToString() string {
 	return logDefine.ToString(#3#)
 }
 `
@@ -85,20 +85,20 @@ func (node *#4#_#2#) ToString() string {
 func gofmortstrFuncLog() string {
 	return `
 // #1# #2#序列化方法
-func (node *#4#_#2#) ToString() string {
+func (node #4#_#2#) ToString() string {
 	return node.ToAString(node.GetAppend())
 }
-func (node *#4#_#2#) ToAString(arr []interface{}) string {
+func (node #4#_#2#) ToAString(arr []interface{}) string {
 	strlog := logDefine.ToString(#3#)
 	if len(arr) > 0 {
 		strlog = logDefine.ToString(arr...) + strlog
 	}
 	return strlog
 }
-func (node *#4#_#2#) GetAlias() string {
+func (node #4#_#2#) GetAlias() string {
 	return "#5#"
 }
-func (node *#4#_#2#) GetAppend() []interface{} {
+func (node #4#_#2#) GetAppend() []interface{} {
 	return []interface{}{
 		node.GetAlias(),
 		logDefine.GetTime(nil),
@@ -135,7 +135,7 @@ func gofmort2String(file *XmlLogFile, info *XmlLogStruct, bstu bool) string {
 func gofmort2Json(file *XmlLogFile, info *XmlLogStruct) string {
 	return replace(`
 // #1# #2#序列化方法
-func (node *#3#_#2#) ToJson() string {
+func (node #3#_#2#) ToJson() string {
 	data, err := json.Marshal(node)
 	if err == nil {
 		return string(data)
