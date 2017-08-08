@@ -111,6 +111,32 @@ func any2string(any interface{}) string {
 	return value
 }
 
+func struct2map(any interface{}) map[string]interface{} {
+	anyt := reflect.TypeOf(any)
+	anyv := reflect.ValueOf(any)
+	if anyv.IsValid() {
+		switch anyt.Kind() {
+		case reflect.Map:
+			{
+				rnt := make(map[string]interface{})
+				for _, v := range anyv.MapKeys() {
+					rnt[any2string(v)] = anyv.MapIndex(v).Interface()
+				}
+				return rnt
+			}
+		case reflect.Struct:
+			{
+				rnt := make(map[string]interface{})
+				for k := 0; k < anyt.NumField(); k++ {
+					rnt[anyt.Field(k).Name] = anyv.Field(k).Interface()
+				}
+				return rnt
+			}
+		}
+	}
+	return nil
+}
+
 func anys2strings(anys []interface{}) []string {
 	rtns := make([]string, len(anys))
 	for index, any := range anys {
