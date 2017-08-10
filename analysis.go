@@ -24,7 +24,7 @@ func (node *XmlLogNode) alsisStuType(file *XmlLogFile) {
 				tkey = string(keys[3:])
 				node.UDType = UDT_PLIST
 			}
-		} else if lkey > 4 && string(keys[:5]) == "map[" { // map
+		} else if lkey > 4 && string(keys[:4]) == "map[" { // map
 			mindex := strings.Index(node.SType, "]")
 			if mindex >= 0 {
 				tkey = string(keys[mindex+1:])
@@ -55,6 +55,12 @@ func (node *XmlLogNode) analysis(file *XmlLogFile) {
 		node.Type = T_DOUBLE
 	case "datetime":
 		node.Type = T_DATETIME
+	case "bool":
+		node.Type = T_BOOL
+	case "short":
+		node.Type = T_SHORT
+	case "long":
+		node.Type = T_LONG
 	default:
 		node.alsisStuType(file)
 	}
@@ -119,13 +125,6 @@ func (file *XmlLogFile) Export(types []int8, outdir string) {
 	}
 }
 
-func DefaultExport() []int8 {
-	return []int8{
-		ET_GO,
-		ET_CPP,
-	}
-}
-
 // 分析文件
 func AnalysisFile(file string) *XmlLogFile {
 	xmllog := &XmlLogFile{
@@ -136,7 +135,7 @@ func AnalysisFile(file string) *XmlLogFile {
 	}
 	err := xmllog.analysis()
 	if err != nil {
-		fmt.Printf("analysis file: %s error, error is %v", file, err)
+		fmt.Printf("analysis file: %s error, error is %v\n", file, err)
 		return nil
 	}
 	return xmllog

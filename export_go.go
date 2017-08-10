@@ -21,6 +21,12 @@ func gogetNodeType(node *XmlLogNode) string {
 			return "string"
 		case T_DATETIME:
 			return "time.Time"
+		case T_BOOL:
+			return "bool"
+		case T_SHORT:
+			return "int8"
+		case T_LONG:
+			return "int64"
 		case T_USERDEF:
 			return node.SType
 		}

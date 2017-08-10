@@ -66,25 +66,43 @@ func javafmortSave(outdir, data string, file *XmlLogFile, info *XmlLogStruct) {
 	}
 }
 
+func javaGetMapValue(tp string) string {
+	switch tp {
+	case "int", "int16", "int32":
+		return "int"
+	case "int8":
+		return "short"
+	case "int64", "datetime":
+		return "long"
+	case "interface{}":
+		return "Object"
+	case "bool":
+		return "boolean"
+	case "string":
+		return "String"
+	}
+	return tp
+}
+
 func javeGetType(key string, tp int8) string {
 	switch tp {
 	case UDT_LIST:
 		keys := []byte(key)
-		return fmt.Sprintf("List<%s>", string(keys[2:]))
+		return fmt.Sprintf("List<%s>", javaGetMapValue(string(keys[2:])))
 	case UDT_PLIST:
 		keys := []byte(key)
-		return fmt.Sprintf("List<%s>", string(keys[3:]))
+		return fmt.Sprintf("List<%s>", javaGetMapValue(string(keys[3:])))
 	case UDT_MAP:
 		keys := []byte(key)
 		index := strings.Index(key, "]")
 		if index >= 0 {
-			return fmt.Sprintf("Map<%s, %s>", string(keys[4:index]), string(keys[index+1]))
+			return fmt.Sprintf("Map<%s, %s>", javaGetMapValue(string(keys[4:index])), javaGetMapValue(string(keys[index+1:])))
 		}
 	case UDT_PMAP:
 		keys := []byte(key)
 		index := strings.Index(key, "]")
 		if index >= 0 {
-			return fmt.Sprintf("Map<%s, %s>", string(keys[4:index]), string(keys[index+2]))
+			return fmt.Sprintf("Map<%s, %s>", javaGetMapValue(string(keys[4:index])), javaGetMapValue(string(keys[index+2:])))
 		}
 	}
 	return key
@@ -102,6 +120,12 @@ func javaGetNodeType(node *XmlLogNode) (string, string) {
 		case T_STRING:
 			return "String", ""
 		case T_DATETIME:
+			return "long", ""
+		case T_BOOL:
+			return "boolean", ""
+		case T_SHORT:
+			return "short", ""
+		case T_LONG:
 			return "long", ""
 		case T_USERDEF:
 			switch node.UDType {
@@ -162,6 +186,7 @@ public class #3#_#4# {
 #6#
         return writer.toString();
     }
+}
 `, "#", []interface{}{
 			file.Name,
 			imports,
@@ -195,6 +220,7 @@ public class #3#_#4# {
 #6#
         return writer.toString();
     }
+}
 `, "#", []interface{}{
 		file.Name,
 		imports,

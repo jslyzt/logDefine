@@ -8,6 +8,9 @@ const (
 	T_DOUBLE               // double
 	T_STRING               // string
 	T_DATETIME             // 时间日期
+	T_BOOL                 // 布尔类型
+	T_SHORT                // 短整型
+	T_LONG                 // 长整型
 	T_USERDEF              // 自定义类型
 )
 const (
