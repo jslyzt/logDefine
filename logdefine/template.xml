@@ -37,7 +37,7 @@
 	</log>
 
 	<!--cloud reco记录日志-->
-	<log name="cloudReco" alias="sdk-reco" version="1" desc="cloud reco记录日志">
+	<log name="cloudReco" alias="cloud-reco" version="1" desc="cloud reco记录日志">
 		<entry name="business"           type="LogData"       desc="日志信息" />
 	</log>
 </logs>

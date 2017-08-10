@@ -12,21 +12,26 @@ import (
 // 工具函数
 func (node *XmlLogNode) alsisStuType(file *XmlLogFile) {
 	node.Type = T_USERDEF
+	node.UDType = UDT_NONE
 	if len(file.StuMp) > 0 {
 		keys := []byte(node.SType)
 		lkey := len(keys)
 		tkey := node.SType
 		if lkey > 2 && keys[0] == '[' && keys[1] == ']' { // 数组
 			tkey = string(keys[2:])
+			node.UDType = UDT_LIST
 			if lkey > 3 && keys[2] == '*' {
 				tkey = string(keys[3:])
+				node.UDType = UDT_PLIST
 			}
 		} else if lkey > 4 && string(keys[:5]) == "map[" { // map
 			mindex := strings.Index(node.SType, "]")
 			if mindex >= 0 {
 				tkey = string(keys[mindex+1:])
+				node.UDType = UDT_MAP
 				if len(tkey) > 0 && keys[mindex+2] == '*' {
 					tkey = string(keys[mindex+2:])
+					node.UDType = UDT_PMAP
 				}
 			}
 		}
@@ -105,6 +110,8 @@ func (file *XmlLogFile) Export(types []int8, outdir string) {
 				file.exportGo(outdir)
 			case ET_CPP:
 				file.exportCpp(outdir)
+			case ET_JAVA:
+				file.exportJava(outdir)
 			default:
 				fmt.Printf("no support export type: %d\n", ntp)
 			}

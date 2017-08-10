@@ -11,10 +11,10 @@ import (
 )
 
 func main() {
-	fileName := flag.String("file", "template.xml", "please input the xml file to analysis")
-	outDir := flag.String("odir", "./", "please input the dir out file to store")
-	fileDir := flag.String("idir", "", "please input the dir files to analysis")
-	outModel := flag.String("model", "go;cpp", "please input the file type to export")
+	fileName := flag.String("file", "", "please input the xml file to analysis")
+	outDir := flag.String("odir", "./out", "please input the dir out file to store")
+	fileDir := flag.String("idir", "./", "please input the dir files to analysis")
+	outModel := flag.String("model", "java", "please input the file type to export")
 	flag.Parse()
 
 	if (fileName == nil || len(*fileName) <= 0) && (fileDir == nil || len(*fileDir) <= 0) {
@@ -22,7 +22,7 @@ func main() {
 		os.Exit(0)
 	}
 	exportModel := make([]int8, 0)
-	if outModel == nil || *outModel == "go;cpp" {
+	if outModel == nil || *outModel == "go;cpp;java" {
 		exportModel = logDefine.DefaultExport()
 	} else {
 		for _, model := range strings.Split(*outModel, ";") {
@@ -31,6 +31,8 @@ func main() {
 				exportModel = append(exportModel, logDefine.ET_GO)
 			case "cpp":
 				exportModel = append(exportModel, logDefine.ET_CPP)
+			case "java":
+				exportModel = append(exportModel, logDefine.ET_JAVA)
 			}
 		}
 	}

@@ -11,8 +11,16 @@ const (
 	T_USERDEF              // 自定义类型
 )
 const (
-	ET_GO  int8 = iota // 导出go
-	ET_CPP             // 导出c++
+	ET_GO   int8 = iota // 导出go
+	ET_CPP              // 导出c++
+	ET_JAVA             // 导出java
+)
+const (
+	UDT_NONE  int8 = iota // 无
+	UDT_LIST              // 列表
+	UDT_PLIST             // 指针列表
+	UDT_MAP               // 键值对
+	UDT_PMAP              // 指针键值对
 )
 
 var (
@@ -26,7 +34,8 @@ type XmlLogNode struct {
 	SType string `xml:"type,attr"` // 节点类型 -- xml
 	Type  int8   // 节点类型 -- true
 	//Defvalue interface{} `xml:"defaultvalue,attr"` // 节点默认值
-	Desc string `xml:"desc,attr"` // 节点说明
+	Desc   string `xml:"desc,attr"` // 节点说明
+	UDType int8   // 扩展类型
 }
 type XmlLogNodes []XmlLogNode
 
