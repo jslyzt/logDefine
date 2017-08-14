@@ -111,6 +111,17 @@ func any2string(any interface{}) string {
 	return value
 }
 
+func structTmap(tp *reflect.Type, value *reflect.Value) map[string]interface{} {
+	rnt := make(map[string]interface{})
+	for k := 0; k < value.NumField(); k++ {
+		field := value.Field(k)
+		if field.CanInterface() {
+			rnt[(*tp).Field(k).Name] = field.Interface()
+		}
+	}
+	return rnt
+}
+
 func struct2map(any interface{}) map[string]interface{} {
 	anyt := reflect.TypeOf(any)
 	anyv := reflect.ValueOf(any)
@@ -126,11 +137,13 @@ func struct2map(any interface{}) map[string]interface{} {
 			}
 		case reflect.Struct:
 			{
-				rnt := make(map[string]interface{})
-				for k := 0; k < anyt.NumField(); k++ {
-					rnt[anyt.Field(k).Name] = anyv.Field(k).Interface()
-				}
-				return rnt
+				return structTmap(&anyt, &anyv)
+			}
+		case reflect.Ptr:
+			{
+				anyv = anyv.Elem()
+				anyt = anyv.Type()
+				return structTmap(&anyt, &anyv)
 			}
 		}
 	}
