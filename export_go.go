@@ -54,6 +54,7 @@ func gofmortStruct(file *XmlLogFile, info *XmlLogStruct) string {
 		buffer.WriteString("\n")
 	}
 	return replace(`
+// --------------------------------------------------------------------
 // #1# #2#结构定义
 // #4#
 type #6#_#2# struct {	// version #3#
@@ -80,31 +81,29 @@ func gofmortDeffunc() string {
 
 // 序列化string
 func gofmortstrFuncStruct() string {
-	return `
-// #1# #2#序列化方法
-func (node #4#_#2#) ToString() string {
-	return logDefine.ToString(#3#)
+	return `// ToString
+func (node #3#_#1#) ToString() string {
+	return logDefine.ToString(#2#)
 }
 `
 }
 
 func gofmortstrFuncLog() string {
-	return `
-// #1# #2#序列化方法
-func (node #4#_#2#) ToString() string {
+	return `// ToString
+func (node #3#_#1#) ToString() string {
 	return node.ToAString(node.GetAppend())
 }
-func (node #4#_#2#) ToAString(arr []interface{}) string {
-	strlog := logDefine.ToString(#3#)
+func (node #3#_#1#) ToAString(arr []interface{}) string {
+	strlog := logDefine.ToString(#2#)
 	if len(arr) > 0 {
 		strlog = logDefine.ToString(arr...) + strlog
 	}
 	return strlog
 }
-func (node #4#_#2#) GetAlias() string {
-	return "#5#"
+func (node #3#_#1#) GetAlias() string {
+	return "#4#"
 }
-func (node #4#_#2#) GetAppend() []interface{} {
+func (node #3#_#1#) GetAppend() []interface{} {
 	return []interface{}{
 		node.GetAlias(),
 		logDefine.GetTime(nil),
@@ -129,7 +128,6 @@ func gofmort2String(file *XmlLogFile, info *XmlLogStruct, bstu bool) string {
 		fmortstr = gofmortstrFuncLog()
 	}
 	return replace(fmortstr, "#", []interface{}{
-		file.Name,
 		info.Name,
 		nodestr,
 		file.MName,
@@ -139,9 +137,8 @@ func gofmort2String(file *XmlLogFile, info *XmlLogStruct, bstu bool) string {
 
 // 序列化json
 func gofmort2Json(file *XmlLogFile, info *XmlLogStruct) string {
-	return replace(`
-// #1# #2#序列化方法
-func (node #3#_#2#) ToJson() string {
+	return replace(`// ToJson
+func (node #2#_#1#) ToJson() string {
 	data, err := json.Marshal(node)
 	if err == nil {
 		return string(data)
@@ -149,7 +146,57 @@ func (node #3#_#2#) ToJson() string {
 	return ""
 }
 `, "#", []interface{}{
-		file.Name,
+		info.Name,
+		file.MName,
+	})
+}
+
+// 反序列化string
+func gofmortstrFuncUStruct() string {
+	return `// FromString
+func (node #2#_#1#) FromString(data []byte, index int) int  {
+	return logDefine.FromString(data, index, &node)
+}
+`
+}
+
+func gofmortstrFuncULog() string {
+	return `// FromString
+func (node #2#_#1#) FromString(data []byte, index int) int {
+	var alias, stime string
+	return node.FromAString(data, index, &alias, &stime)
+}
+
+func (node #2#_#1#) FromAString(data []byte, index int, nodes ...interface{}) int {
+	slen := logDefine.FromString(data, index, nodes...)
+	if slen < len(data) {
+		return logDefine.FromString(data, slen, &node)
+	}
+	return slen
+}
+`
+}
+
+func gofmortFString(file *XmlLogFile, info *XmlLogStruct, bstu bool) string {
+	var fmortstr string
+	if bstu == true {
+		fmortstr = gofmortstrFuncUStruct()
+	} else {
+		fmortstr = gofmortstrFuncULog()
+	}
+	return replace(fmortstr, "#", []interface{}{
+		info.Name,
+		file.MName,
+	})
+}
+
+// 反序列化json
+func gofmortFJson(file *XmlLogFile, info *XmlLogStruct) string {
+	return replace(`// FromJson
+func (node #2#_#1#) FromJson(data []byte)  {
+	json.Unmarshal(data, node)
+}
+`, "#", []interface{}{
 		info.Name,
 		file.MName,
 	})
@@ -157,7 +204,18 @@ func (node #3#_#2#) ToJson() string {
 
 // 结构序列化方法
 func gofmortStrfunc(file *XmlLogFile, info *XmlLogStruct, bstu bool) string {
-	return gofmort2String(file, info, bstu) + gofmort2Json(file, info)
+	return replace(`
+// #1# #2#序列化方法
+#3#
+
+// #1# #2#反序列化方法
+#4#
+`, "#", []interface{}{
+		file.Name,
+		info.Name,
+		gofmort2String(file, info, bstu) + gofmort2Json(file, info),
+		gofmortFString(file, info, bstu) + gofmortFJson(file, info),
+	})
 }
 
 // go文件序列化方法
