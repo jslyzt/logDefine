@@ -144,10 +144,14 @@ func javaGetNodeType(node *XmlLogNode) (string, string) {
 func javafmortMembers(info *XmlLogStruct) (string, string) {
 	var bfimport bytes.Buffer
 	var bfmember bytes.Buffer
+	importmap := make(map[string]bool)
 	for _, node := range info.Nodes {
 		stype, simport := javaGetNodeType(&node)
 		if len(simport) > 0 {
-			bfimport.WriteString(fmt.Sprintf("import %s;\n", simport))
+			if _, ok := importmap[simport]; ok == false {
+				bfimport.WriteString(fmt.Sprintf("import %s;\n", simport))
+				importmap[simport] = true
+			}
 		}
 		if len(stype) > 0 {
 			bfmember.WriteString(fmt.Sprintf("    private %s %s;\n", stype, node.Xname))
