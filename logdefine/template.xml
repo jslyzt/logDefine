@@ -19,8 +19,6 @@
 		<entry name="number"             type="int"           desc="返回结果的top" />
 		<entry name="clientIP"           type="string"        desc="客户端IP"/>
 		<entry name="image"              type="string"        desc="用户请求图片"/>
-		<entry name="resultImage"        type="[]*ResultImage" desc="识别服务器返回的图片"/>
-		<entry name="result"             type="map[string]interface{}" desc="返回客户的端的结果json"/>
 		<entry name="createTime"         type="string"        desc="请求的时间"/>
 		<entry name="timeconst"          type="double"        desc="请求总耗时"/>
 		<entry name="appKey"             type="string"        desc="应用ID"/>
@@ -28,6 +26,8 @@
 		<entry name="useragent"          type="string"        desc="用户代理"/>
 		<entry name="version"            type="string"        desc="版本号"/>
 		<entry name="recognizeTimeConsuming" type="double"    desc="getFeature时间"/>
+		<entry name="resultImage"        type="[]*ResultImage" desc="识别服务器返回的图片"/>
+		<entry name="result"             type="map[string]interface{}" desc="返回客户的端的结果json"/>
 	</struct>
 	
 	<!--sdk reco记录日志-->

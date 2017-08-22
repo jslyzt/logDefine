@@ -15,6 +15,7 @@ func main() {
 	outDir := flag.String("odir", "./out", "please input the dir out file to store")
 	fileDir := flag.String("idir", "", "please input the dir files to analysis")
 	outModel := flag.String("model", "go;cpp;java", "please input the file type to export")
+	outCSet := flag.String("charset", "utf-8", "please input the output charset")
 	flag.Parse()
 
 	if (fileName == nil || len(*fileName) <= 0) && (fileDir == nil || len(*fileDir) <= 0) {
@@ -45,7 +46,7 @@ func main() {
 	if fileName != nil && len(*fileName) > 0 {
 		logfile := logDefine.AnalysisFile(*fileName)
 		if logfile != nil {
-			logfile.Export(exportModel, *outDir)
+			logfile.Export(exportModel, *outDir, *outCSet)
 		}
 	}
 	if fileDir != nil && len(*fileDir) > 0 {
@@ -58,7 +59,7 @@ func main() {
 			if file.IsDir() == false && strings.HasSuffix(strings.ToLower(file.Name()), ".xml") == true {
 				logfile := logDefine.AnalysisFile(file.Name())
 				if logfile != nil {
-					logfile.Export(exportModel, *outDir)
+					logfile.Export(exportModel, *outDir, *outCSet)
 				}
 			}
 		}

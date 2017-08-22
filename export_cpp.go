@@ -6,6 +6,8 @@ import (
 	"io/ioutil"
 	"os"
 	"strings"
+
+	"github.com/djimenez/iconv-go"
 )
 
 func cppGetMapValue(tp string) string {
@@ -19,7 +21,7 @@ func cppGetMapValue(tp string) string {
 	case "int64", "datetime":
 		return "int64_t"
 	case "interface{}":
-		return "commom::Object"
+		return "common::Object"
 	case "bool":
 		return "bool"
 	case "string":
@@ -58,9 +60,9 @@ func cppgetNodeType(node *XmlLogNode) (string, string) {
 		case T_INT:
 			return "int32_t", ""
 		case T_FLOAT:
-			return "float_t", ""
+			return "float", ""
 		case T_DOUBLE:
-			return "double_t", ""
+			return "double", ""
 		case T_STRING:
 			return "std::string", ""
 		case T_DATETIME:
@@ -91,9 +93,11 @@ func cppfmortStruct(file *XmlLogFile, info *XmlLogStruct, incs *map[string]bool)
 	for _, node := range info.Nodes {
 		memtp, include := cppgetNodeType(&node)
 		memtp = strings.Replace(memtp, file.MName+"_", "", 100)
-		buffer.WriteString(fmt.Sprintf("\t%s %s; //", memtp, node.Xname))
+		strmember := fmt.Sprintf("\t%-20s %s;", memtp, node.Xname)
 		if len(node.Desc) > 0 {
-			buffer.WriteString(fmt.Sprintf(" desc: %s", node.Desc))
+			buffer.WriteString(fmt.Sprintf("%-50s // desc:%s", strmember, node.Desc))
+		} else {
+			buffer.WriteString(strmember)
 		}
 		if incs != nil && len(include) > 0 {
 			if _, ok := (*incs)[include]; ok == false {
@@ -107,8 +111,9 @@ func cppfmortStruct(file *XmlLogFile, info *XmlLogStruct, incs *map[string]bool)
 // #3#
 struct #1# {	// version #2#
 #4#
+    void logExport(std::stringstream& stream) const;                                        // 序列化方法
+    void logEntrance(const std::string& str, size_t size = 0, size_t* index = nullptr);     // 反序列化方法
 };
-
 `, "#", []interface{}{
 		info.Name,
 		info.Version,
@@ -121,24 +126,26 @@ struct #1# {	// version #2#
 func cppfmortStrfunc(file *XmlLogFile, info *XmlLogStruct) string {
 	var buffer bytes.Buffer
 	for _, node := range info.Nodes {
-		buffer.WriteString(fmt.Sprintf("node.%s, ", node.Name))
+		buffer.WriteString(fmt.Sprintf("%s, ", node.Xname))
 	}
 	nodestr := buffer.String()
 	if len(nodestr) > 0 {
 		nodestr = strings.Trim(nodestr, ", ")
 	}
-	return replace(`// #1# 序列化方法
-static void logExport(const #1#& node, std::string& str) {
-	str.clear();
-	std::stringstream stream;
-	commom::log(stream, #2#);
-	str = stream.str();
+	return replace(`
+void #1#::logExport(std::stringstream& stream) const {
+	LOG(stream, #2#);
 }
 
-// #1# 反序列化方法
-static void logEntrance(const std::string& str, #1#& node) {
-	size_t index = 0;
-	commom::entrance(str, str.length(), index, #2#);
+void #1#::logEntrance(const std::string& str, size_t size, size_t* index) {
+    size_t sindex = 0;
+    if (index == nullptr) {
+        index = &sindex;
+    }
+    if (size <= 0) {
+        size = str.length();
+    }
+	common::entrance(str, size, *index, #2#);
 }
 `, "#", []interface{}{
 		info.Name,
@@ -182,7 +189,7 @@ namespace %s{
 }
 
 // 导出 golang
-func (file *XmlLogFile) exportCpp(outdir string) bool {
+func (file *XmlLogFile) exportCpp(outdir, charset string) bool {
 	fileName := fmt.Sprintf("%s/logdef_%s.h", outdir, file.Name)
 	fmt.Printf("save file: %s\n", fileName)
 
@@ -201,6 +208,18 @@ func (file *XmlLogFile) exportCpp(outdir string) bool {
 				outstr.WriteByte('\n')
 			}
 		}
+	}
+
+	if charset != "utf-8" {
+		converter, err := iconv.NewConverter("utf-8", charset)
+		if err == nil {
+			ostr, err := converter.ConvertString(outstr.String())
+			if err == nil {
+				outstr.Reset()
+				outstr.WriteString(ostr)
+			}
+		}
+
 	}
 
 	err := ioutil.WriteFile(fileName, []byte(outstr.String()), os.ModePerm)
