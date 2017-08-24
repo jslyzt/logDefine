@@ -165,9 +165,9 @@ func javafmortTostring(info *XmlLogStruct) string {
 	index := 0
 	for _, node := range info.Nodes {
 		if index == 0 {
-			bfstring.WriteString(fmt.Sprintf("        writer.append(%s)", node.Xname))
+			bfstring.WriteString(fmt.Sprintf("        writer.appendSplit(%s)", node.Xname))
 		} else {
-			bfstring.WriteString(fmt.Sprintf("\n                .append(%s)", node.Xname))
+			bfstring.WriteString(fmt.Sprintf("\n                .appendSplit(%s)", node.Xname))
 		}
 		index = index + 1
 	}
@@ -222,7 +222,7 @@ public class #3#_#4# {
     public String toString() {
         FStringWriter writer = new FStringWriter();
 #6#
-        return writer.toString();
+        return String.format("(%s)", writer.toString());
     }
 }
 `, "#", []interface{}{

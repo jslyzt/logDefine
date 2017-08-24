@@ -90,10 +90,11 @@ func cppgetNodeType(node *XmlLogNode) (string, string) {
 // 序列化结构
 func cppfmortStruct(file *XmlLogFile, info *XmlLogStruct, incs *map[string]bool) string {
 	var buffer bytes.Buffer
-	for _, node := range info.Nodes {
+	for index, node := range info.Nodes {
 		memtp, include := cppgetNodeType(&node)
 		memtp = strings.Replace(memtp, file.MName+"_", "", 100)
-		strmember := fmt.Sprintf("\t%-20s %s;", memtp, node.Xname)
+		//strmember := fmt.Sprintf("\t%-20s %s;", memtp, node.Xname)
+		strmember := fmt.Sprintf("\tLOGMEMDEF((%s), %s, %d);", memtp, node.Xname, index)
 		if len(node.Desc) > 0 {
 			buffer.WriteString(fmt.Sprintf("%-50s // desc:%s", strmember, node.Desc))
 		} else {
