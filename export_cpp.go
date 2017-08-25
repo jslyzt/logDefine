@@ -89,12 +89,23 @@ func cppgetNodeType(node *XmlLogNode) (string, string) {
 
 // 序列化结构
 func cppfmortStruct(file *XmlLogFile, info *XmlLogStruct, incs *map[string]bool) string {
-	var buffer bytes.Buffer
+	complexTypes := make(map[string]string)
+	var buffer, complexs bytes.Buffer
 	for index, node := range info.Nodes {
 		memtp, include := cppgetNodeType(&node)
 		memtp = strings.Replace(memtp, file.MName+"_", "", 100)
+		if strings.Index(memtp, ",") >= 0 {
+			comptype, ok := complexTypes[memtp]
+			if ok {
+				memtp = comptype
+			} else {
+				smemtp := fmt.Sprintf("COMPLEX_%s", strings.ToUpper(node.Xname))
+				complexTypes[memtp] = smemtp
+				memtp = smemtp
+			}
+		}
 		//strmember := fmt.Sprintf("\t%-20s %s;", memtp, node.Xname)
-		strmember := fmt.Sprintf("\tLOGMEMDEF((%s), %s, %d);", memtp, node.Xname, index)
+		strmember := fmt.Sprintf("\tLOGMEMDEF(%s, %s, %d);", memtp, node.Xname, index)
 		if len(node.Desc) > 0 {
 			buffer.WriteString(fmt.Sprintf("%-50s // desc:%s", strmember, node.Desc))
 		} else {
@@ -107,10 +118,14 @@ func cppfmortStruct(file *XmlLogFile, info *XmlLogStruct, incs *map[string]bool)
 		}
 		buffer.WriteString("\n")
 	}
+	for k, v := range complexTypes {
+		complexs.WriteString(fmt.Sprintf("\ttypedef %s %s;\n", k, v))
+	}
 	return replace(`// --------------------------------------------------------------------
 // #1# 结构定义
 // #3#
 struct #1# {	// version #2#
+#5#
 #4#
     void logExport(std::stringstream& stream) const;                                        // 序列化方法
     void logEntrance(const std::string& str, size_t size = 0, size_t* index = nullptr);     // 反序列化方法
@@ -120,6 +135,7 @@ struct #1# {	// version #2#
 		info.Version,
 		info.Desc,
 		buffer.String(),
+		complexs.String(),
 	})
 }
 
@@ -133,7 +149,8 @@ func cppfmortStrfunc(file *XmlLogFile, info *XmlLogStruct) string {
 	if len(nodestr) > 0 {
 		nodestr = strings.Trim(nodestr, ", ")
 	}
-	return replace(`
+	return replace(`// --------------------------------------------------------------------
+// #1#
 void #1#::logExport(std::stringstream& stream) const {
 	LOG(stream, #2#);
 }
@@ -146,7 +163,7 @@ void #1#::logEntrance(const std::string& str, size_t size, size_t* index) {
     if (size <= 0) {
         size = str.length();
     }
-	common::entrance(str, size, *index, #2#);
+	ENTRANCE(str, size, *index, #2#);
 }
 `, "#", []interface{}{
 		info.Name,
@@ -155,30 +172,32 @@ void #1#::logEntrance(const std::string& str, size_t size, size_t* index) {
 }
 
 // c++文件序列化方法
-func cppfmortLogfile(file *XmlLogFile) string {
+func cppfmortLogfile(file *XmlLogFile, includes []string) (string, string) {
 	incs := make(map[string]bool)
-	var bufStu bytes.Buffer
+	var bufStuH, bufStuF bytes.Buffer
 	for _, node := range file.Stus {
-		bufStu.WriteString(cppfmortStruct(file, &node, &incs))
-		bufStu.WriteString(cppfmortStrfunc(file, &node))
+		bufStuH.WriteString(cppfmortStruct(file, &node, &incs))
+		bufStuF.WriteString(cppfmortStrfunc(file, &node))
 	}
-	var bufLog bytes.Buffer
+	var bufLogH, bufLogF bytes.Buffer
 	for _, strnode := range file.Logs {
-		bufLog.WriteString(cppfmortStruct(file, &strnode, &incs))
-		bufLog.WriteString(cppfmortStrfunc(file, &strnode))
+		bufLogH.WriteString(cppfmortStruct(file, &strnode, &incs))
+		bufLogF.WriteString(cppfmortStrfunc(file, &strnode))
 	}
 	strincs := ""
 	for k := range incs {
 		strincs = strincs + fmt.Sprintf("#include <%s>\n", k)
 	}
+	for _, v := range includes {
+		strincs = strincs + fmt.Sprintf("#include \"%s\"\n", v)
+	}
 	return fmt.Sprintf(
-		`#pragma once
+			`#pragma once
 
 #include <stdint.h>
 #include <string>
 #include <sstream>
 %s
-#include "logDef.h"
 
 namespace %s{
 
@@ -186,17 +205,24 @@ namespace %s{
 
 %s
 }
-`, strincs, file.Name, bufStu.String(), bufLog.String())
+`, strincs, file.Name, bufStuH.String(), bufLogH.String()),
+		fmt.Sprintf(
+			`#include "logdef_%s.h"
+
+namespace %s{
+
+%s
+
+%s
+}
+`, file.Name, file.Name, bufStuF.String(), bufLogF.String())
 }
 
-// 导出 golang
-func (file *XmlLogFile) exportCpp(outdir, charset string) bool {
-	fileName := fmt.Sprintf("%s/logdef_%s.h", outdir, file.Name)
-	fmt.Printf("save file: %s\n", fileName)
-
+func saveFile(sdata, name, charset string) {
+	fmt.Printf("save file: %s\n", name)
 	var outstr bytes.Buffer
 	limit, begin, hasxg := 120, 0, 0
-	data := []byte(cppfmortLogfile(file))
+	data := []byte(sdata)
 	for index := 0; index < len(data); index++ {
 		if data[index] == '/' && data[index+1] == '/' && index+1 < len(data) {
 			hasxg = 1
@@ -223,11 +249,33 @@ func (file *XmlLogFile) exportCpp(outdir, charset string) bool {
 
 	}
 
-	err := ioutil.WriteFile(fileName, []byte(outstr.String()), os.ModePerm)
+	err := ioutil.WriteFile(name, []byte(outstr.String()), os.ModePerm)
 	if err != nil {
-		fmt.Printf("save file %s failed, error %v", fileName, err)
-		return false
+		fmt.Printf("save file %s failed, error %v", name, err)
 	}
-	runCmd("astyle", "--style=java", "-SMpHnUoOY", "-k1W1", fileName)
+	runCmd("astyle", "--style=java", "-SMpHnUoOY", "-k1W1", name)
+}
+
+// 导出 golang
+func (file *XmlLogFile) exportCpp(outdir string, appends map[string]interface{}) bool {
+	charset := ""
+	any, ok := appends["charset"]
+	if ok {
+		charset = any.(string)
+	}
+
+	includes := make([]string, 0)
+	any, ok = appends["includes"]
+	if ok {
+		includes = any.([]string)
+	}
+
+	hdata, pdata := cppfmortLogfile(file, includes)
+	if len(hdata) > 0 {
+		saveFile(hdata, fmt.Sprintf("%s/logdef_%s.h", outdir, file.Name), charset)
+	}
+	if len(pdata) > 0 {
+		saveFile(pdata, fmt.Sprintf("%s/logdef_%s.cpp", outdir, file.Name), charset)
+	}
 	return true
 }

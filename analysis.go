@@ -108,14 +108,14 @@ func (file *XmlLogFile) analysis() error {
 }
 
 // 导出
-func (file *XmlLogFile) Export(types []int8, outdir, charset string) {
+func (file *XmlLogFile) Export(types []int8, outdir string, appends map[string]interface{}) {
 	if file != nil {
 		for _, ntp := range types {
 			switch ntp {
 			case ET_GO:
 				file.exportGo(outdir)
 			case ET_CPP:
-				file.exportCpp(outdir, charset)
+				file.exportCpp(outdir, appends)
 			case ET_JAVA:
 				file.exportJava(outdir)
 			default:

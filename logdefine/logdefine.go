@@ -16,6 +16,7 @@ func main() {
 	fileDir := flag.String("idir", "", "please input the dir files to analysis")
 	outModel := flag.String("model", "go;cpp;java", "please input the file type to export")
 	outCSet := flag.String("charset", "utf-8", "please input the output charset")
+	incs := flag.String("inc", "", "please input the include files")
 	flag.Parse()
 
 	if (fileName == nil || len(*fileName) <= 0) && (fileDir == nil || len(*fileDir) <= 0) {
@@ -42,11 +43,18 @@ func main() {
 			}
 		}
 	}
+	appends := make(map[string]interface{})
+	if incs != nil {
+		appends["includes"] = strings.Split(*incs, ";")
+	}
+	if outCSet != nil {
+		appends["charset"] = *outCSet
+	}
 
 	if fileName != nil && len(*fileName) > 0 {
 		logfile := logDefine.AnalysisFile(*fileName)
 		if logfile != nil {
-			logfile.Export(exportModel, *outDir, *outCSet)
+			logfile.Export(exportModel, *outDir, appends)
 		}
 	}
 	if fileDir != nil && len(*fileDir) > 0 {
@@ -59,7 +67,7 @@ func main() {
 			if file.IsDir() == false && strings.HasSuffix(strings.ToLower(file.Name()), ".xml") == true {
 				logfile := logDefine.AnalysisFile(file.Name())
 				if logfile != nil {
-					logfile.Export(exportModel, *outDir, *outCSet)
+					logfile.Export(exportModel, *outDir, appends)
 				}
 			}
 		}
