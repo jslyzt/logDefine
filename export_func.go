@@ -239,7 +239,9 @@ func bytes2any(data []byte, index int, spkey byte, value reflect.Value) int {
 		{
 			checkMove(data, &eindex, '(')
 			for i := 0; i < value.NumField(); i++ {
-				eindex = bytes2any(data, eindex, 0, value.Field(i))
+				member := value.Field(i)
+				eindex = bytes2any(data, eindex, 0, member)
+				fmt.Println(member)
 			}
 			checkMove(data, &eindex, ')')
 		}

@@ -56,6 +56,7 @@ func Test_fromString(t *testing.T) {
 		},
 	}
 	data := sdkReco.ToString()
+	fmt.Println(data)
 
 	sdkReco2 := Logger_sdkReco{}
 	var alias, stime string
