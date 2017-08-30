@@ -376,9 +376,9 @@ func ToString(args ...interface{}) string {
 
 func FromString(data []byte, index int, nodes ...interface{}) int {
 	dlen := len(data)
-	clen := 0
+	clen := index
 	for i := 0; i < len(nodes); i++ {
-		clen = bytes2anyptr(data, index, nodes[i], 0)
+		clen = bytes2anyptr(data, clen, nodes[i], 0)
 		if clen >= dlen {
 			break
 		}

@@ -1,6 +1,7 @@
 package logger
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -56,5 +57,8 @@ func Test_fromString(t *testing.T) {
 	data := sdkReco.ToString()
 
 	sdkReco2 := Logger_sdkReco{}
-	sdkReco2.FromString([]byte(data), 0)
+	var alias, stime string
+	sdkReco2.FromAString([]byte(data), 0, &alias, &stime)
+	fmt.Println("alias: ", alias, ", stime: ", stime)
+	//sdkReco2.FromString([]byte(data), 0)
 }
