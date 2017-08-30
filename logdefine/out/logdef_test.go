@@ -2,6 +2,7 @@ package logger
 
 import (
 	"fmt"
+	"reflect"
 	"testing"
 )
 
@@ -58,7 +59,25 @@ func Test_fromString(t *testing.T) {
 
 	sdkReco2 := Logger_sdkReco{}
 	var alias, stime string
-	sdkReco2.FromAString([]byte(data), 0, &alias, &stime)
-	fmt.Println("alias: ", alias, ", stime: ", stime)
-	//sdkReco2.FromString([]byte(data), 0)
+	datas := []byte(data)
+	sdkReco2.FromAString(datas, 0, &alias, &stime)
+	sdkReco2.FromString(datas, 0)
+	fmt.Println("alias: ", alias, ", stime: ", stime, ", sdkReco: ", sdkReco2)
+}
+
+type TStruct struct {
+	Name string
+}
+
+func Test_struct(t *testing.T) {
+	node := TStruct{
+		Name: "name",
+	}
+	value := reflect.ValueOf(&node)
+	value = reflect.Indirect(value)
+	for i := 0; i < value.NumField(); i++ {
+		field := value.Field(i)
+		field.SetString("111")
+	}
+	fmt.Println(node, value)
 }

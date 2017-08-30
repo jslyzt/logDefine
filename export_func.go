@@ -214,64 +214,15 @@ func checkMove(data []byte, index *int, key byte) {
 	}
 }
 
-func bytes2anyptr(data []byte, index int, any interface{}, spkey byte) int {
-	value := reflect.ValueOf(any)
-	rvk := value.Kind()
-	if rvk != reflect.Ptr || value.IsNil() {
-		return index
-	}
+func bytes2any(data []byte, index int, spkey byte, value reflect.Value) int {
 	eindex := index
-	value = value.Elem()
-	rt := value.Type()
-	rvk = rt.Kind()
+	rvk := value.Type().Kind()
 	switch rvk {
-	case reflect.Bool:
-		ttp := reflect.ValueOf((any.(*bool)))
-		eindex = bytes2type(data, eindex, 0, rvk, reflect.Indirect(ttp))
-	case reflect.Int:
-		ttp := reflect.ValueOf((any.(*int)))
-		eindex = bytes2type(data, eindex, 0, rvk, reflect.Indirect(ttp))
-	case reflect.Int8:
-		ttp := reflect.ValueOf((any.(*int8)))
-		eindex = bytes2type(data, eindex, 0, rvk, reflect.Indirect(ttp))
-	case reflect.Int16:
-		ttp := reflect.ValueOf((any.(*int16)))
-		eindex = bytes2type(data, eindex, 0, rvk, reflect.Indirect(ttp))
-	case reflect.Int32:
-		ttp := reflect.ValueOf((any.(*int32)))
-		eindex = bytes2type(data, eindex, 0, rvk, reflect.Indirect(ttp))
-	case reflect.Int64:
-		ttp := reflect.ValueOf((any.(*int64)))
-		eindex = bytes2type(data, eindex, 0, rvk, reflect.Indirect(ttp))
-	case reflect.Uint:
-		ttp := reflect.ValueOf((any.(*uint)))
-		eindex = bytes2type(data, eindex, 0, rvk, reflect.Indirect(ttp))
-	case reflect.Uint8:
-		ttp := reflect.ValueOf((any.(*uint8)))
-		eindex = bytes2type(data, eindex, 0, rvk, reflect.Indirect(ttp))
-	case reflect.Uint16:
-		ttp := reflect.ValueOf((any.(*uint16)))
-		eindex = bytes2type(data, eindex, 0, rvk, reflect.Indirect(ttp))
-	case reflect.Uint32:
-		ttp := reflect.ValueOf((any.(*uint32)))
-		eindex = bytes2type(data, eindex, 0, rvk, reflect.Indirect(ttp))
-	case reflect.Uint64:
-		ttp := reflect.ValueOf((any.(*uint64)))
-		eindex = bytes2type(data, eindex, 0, rvk, reflect.Indirect(ttp))
-	case reflect.Float32:
-		ttp := reflect.ValueOf((any.(*float32)))
-		eindex = bytes2type(data, eindex, 0, rvk, reflect.Indirect(ttp))
-	case reflect.Float64:
-		ttp := reflect.ValueOf((any.(*float64)))
-		eindex = bytes2type(data, eindex, 0, rvk, reflect.Indirect(ttp))
-	case reflect.String:
-		ttp := reflect.ValueOf((any.(*string)))
-		eindex = bytes2type(data, eindex, 0, rvk, reflect.Indirect(ttp))
 	case reflect.Array, reflect.Slice:
 		{
 			checkMove(data, &eindex, '[')
 			for i := 0; i < value.Len(); i++ {
-				eindex = bytes2anyptr(data, eindex, value.Index(i), 0)
+				eindex = bytes2any(data, eindex, ',', value.Index(i))
 			}
 			checkMove(data, &eindex, ']')
 		}
@@ -279,8 +230,8 @@ func bytes2anyptr(data []byte, index int, any interface{}, spkey byte) int {
 		{
 			checkMove(data, &eindex, '{')
 			for _, key := range value.MapKeys() {
-				eindex = bytes2anyptr(data, eindex, &key, ':')
-				eindex = bytes2anyptr(data, eindex, value.MapIndex(key), ';')
+				eindex = bytes2any(data, eindex, ':', key)
+				eindex = bytes2any(data, eindex, ';', value.MapIndex(key))
 			}
 			checkMove(data, &eindex, '}')
 		}
@@ -288,12 +239,24 @@ func bytes2anyptr(data []byte, index int, any interface{}, spkey byte) int {
 		{
 			checkMove(data, &eindex, '(')
 			for i := 0; i < value.NumField(); i++ {
-				eindex = bytes2anyptr(data, eindex, value.Field(i), 0)
+				eindex = bytes2any(data, eindex, 0, value.Field(i))
 			}
 			checkMove(data, &eindex, ')')
 		}
+	default:
+		{
+			eindex = bytes2type(data, eindex, 0, rvk, value)
+		}
 	}
 	return eindex
+}
+
+func bytes2anyptr(data []byte, index int, any interface{}, spkey byte) int {
+	value := reflect.ValueOf(any)
+	if value.Kind() != reflect.Ptr || value.IsNil() {
+		return index
+	}
+	return bytes2any(data, index, spkey, reflect.Indirect(value))
 }
 
 func structTmap(tp *reflect.Type, value *reflect.Value) map[string]interface{} {
