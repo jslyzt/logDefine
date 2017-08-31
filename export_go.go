@@ -116,7 +116,7 @@ func gofmort2String(file *XmlLogFile, info *XmlLogStruct, bstu bool) string {
 func gofmort2Json(file *XmlLogFile, info *XmlLogStruct) string {
 	return replace(`// ToJson
 func (node *#2#_#1#) ToJson() string {
-	data, err := json.Marshal(node)
+	data, err := json.Marshal(*node)
 	if err == nil {
 		return string(data)
 	}
@@ -162,8 +162,8 @@ func gofmortFString(file *XmlLogFile, info *XmlLogStruct, bstu bool) string {
 // 反序列化json
 func gofmortFJson(file *XmlLogFile, info *XmlLogStruct) string {
 	return replace(`// FromJson
-func (node #2#_#1#) FromJson(data []byte)  {
-	json.Unmarshal(data, node)
+func (node *#2#_#1#) FromJson(data []byte)  {
+	json.Unmarshal(data, *node)
 }
 `, "#", []interface{}{
 		info.Name,

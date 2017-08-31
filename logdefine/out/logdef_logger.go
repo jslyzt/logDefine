@@ -25,7 +25,7 @@ func (node *Logger_ResultImage) ToString() string {
 
 // ToJson
 func (node *Logger_ResultImage) ToJson() string {
-	data, err := json.Marshal(node)
+	data, err := json.Marshal(*node)
 	if err == nil {
 		return string(data)
 	}
@@ -39,8 +39,8 @@ func (node *Logger_ResultImage) FromString(data []byte, index int) int {
 }
 
 // FromJson
-func (node Logger_ResultImage) FromJson(data []byte) {
-	json.Unmarshal(data, node)
+func (node *Logger_ResultImage) FromJson(data []byte) {
+	json.Unmarshal(data, *node)
 }
 
 // --------------------------------------------------------------------
@@ -75,7 +75,7 @@ func (node *Logger_LogData) ToString() string {
 
 // ToJson
 func (node *Logger_LogData) ToJson() string {
-	data, err := json.Marshal(node)
+	data, err := json.Marshal(*node)
 	if err == nil {
 		return string(data)
 	}
@@ -89,8 +89,8 @@ func (node *Logger_LogData) FromString(data []byte, index int) int {
 }
 
 // FromJson
-func (node Logger_LogData) FromJson(data []byte) {
-	json.Unmarshal(data, node)
+func (node *Logger_LogData) FromJson(data []byte) {
+	json.Unmarshal(data, *node)
 }
 
 // --------------------------------------------------------------------
@@ -113,7 +113,7 @@ func (node *Logger_sdkReco) GetAlias() string {
 
 // ToJson
 func (node *Logger_sdkReco) ToJson() string {
-	data, err := json.Marshal(node)
+	data, err := json.Marshal(*node)
 	if err == nil {
 		return string(data)
 	}
@@ -128,8 +128,8 @@ func (node *Logger_sdkReco) FromString(data []byte, index int) (size int, alias,
 }
 
 // FromJson
-func (node Logger_sdkReco) FromJson(data []byte) {
-	json.Unmarshal(data, node)
+func (node *Logger_sdkReco) FromJson(data []byte) {
+	json.Unmarshal(data, *node)
 }
 
 // --------------------------------------------------------------------
@@ -151,7 +151,7 @@ func (node *Logger_cloudReco) GetAlias() string {
 
 // ToJson
 func (node *Logger_cloudReco) ToJson() string {
-	data, err := json.Marshal(node)
+	data, err := json.Marshal(*node)
 	if err == nil {
 		return string(data)
 	}
@@ -166,6 +166,6 @@ func (node *Logger_cloudReco) FromString(data []byte, index int) (size int, alia
 }
 
 // FromJson
-func (node Logger_cloudReco) FromJson(data []byte) {
-	json.Unmarshal(data, node)
+func (node *Logger_cloudReco) FromJson(data []byte) {
+	json.Unmarshal(data, *node)
 }
