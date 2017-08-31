@@ -58,12 +58,9 @@ func Test_fromString(t *testing.T) {
 	data := sdkReco.ToString()
 	fmt.Println(data)
 
-	sdkReco2 := Logger_sdkReco{}
-	var alias, stime string
-	datas := []byte(data)
-	sdkReco2.FromAString(datas, 0, &alias, &stime)
-	sdkReco2.FromString(datas, 0)
-	fmt.Println("alias: ", alias, ", stime: ", stime, ", sdkReco: ", sdkReco2)
+	sdkReco2 := &Logger_sdkReco{}
+	_, alias, stime := sdkReco2.FromString([]byte(data), 0)
+	fmt.Println("alias: ", alias, ", stime: ", stime, ", sdkReco: ", *sdkReco2)
 }
 
 type TStruct struct {

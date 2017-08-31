@@ -19,12 +19,12 @@ type Logger_ResultImage struct { // version 1
 
 // logger ResultImage序列化方法
 // ToString
-func (node Logger_ResultImage) ToString() string {
-	return logDefine.ToString(node.ImageID, node.ServerIP, node.ImageURL, node.Score)
+func (node *Logger_ResultImage) ToString() string {
+	return logDefine.ToString(node)
 }
 
 // ToJson
-func (node Logger_ResultImage) ToJson() string {
+func (node *Logger_ResultImage) ToJson() string {
 	data, err := json.Marshal(node)
 	if err == nil {
 		return string(data)
@@ -34,8 +34,8 @@ func (node Logger_ResultImage) ToJson() string {
 
 // logger ResultImage反序列化方法
 // FromString
-func (node Logger_ResultImage) FromString(data []byte, index int) int {
-	return logDefine.FromString(data, index, &node)
+func (node *Logger_ResultImage) FromString(data []byte, index int) int {
+	return logDefine.FromString(data, index, node)
 }
 
 // FromJson
@@ -55,8 +55,6 @@ type Logger_LogData struct { // version 1
 	Number                 int                    `json:"number"`                 // desc: 返回结果的top
 	ClientIP               string                 `json:"clientIP"`               // desc: 客户端IP
 	Image                  string                 `json:"image"`                  // desc: 用户请求图片
-	ResultImage            []*Logger_ResultImage  `json:"resultImage"`            // desc: 识别服务器返回的图片
-	Result                 map[string]interface{} `json:"result"`                 // desc: 返回客户的端的结果json
 	CreateTime             string                 `json:"createTime"`             // desc: 请求的时间
 	Timeconst              float64                `json:"timeconst"`              // desc: 请求总耗时
 	AppKey                 string                 `json:"appKey"`                 // desc: 应用ID
@@ -64,17 +62,19 @@ type Logger_LogData struct { // version 1
 	Useragent              string                 `json:"useragent"`              // desc: 用户代理
 	Version                string                 `json:"version"`                // desc: 版本号
 	RecognizeTimeConsuming float64                `json:"recognizeTimeConsuming"` // desc: getFeature时间
+	ResultImage            []*Logger_ResultImage  `json:"resultImage"`            // desc: 识别服务器返回的图片
+	Result                 map[string]interface{} `json:"result"`                 // desc: 返回客户的端的结果json
 
 }
 
 // logger LogData序列化方法
 // ToString
-func (node Logger_LogData) ToString() string {
-	return logDefine.ToString(node.RequestID, node.Token, node.Latitude, node.Longitude, node.Collection, node.Number, node.ClientIP, node.Image, node.ResultImage, node.Result, node.CreateTime, node.Timeconst, node.AppKey, node.Appname, node.Useragent, node.Version, node.RecognizeTimeConsuming)
+func (node *Logger_LogData) ToString() string {
+	return logDefine.ToString(node)
 }
 
 // ToJson
-func (node Logger_LogData) ToJson() string {
+func (node *Logger_LogData) ToJson() string {
 	data, err := json.Marshal(node)
 	if err == nil {
 		return string(data)
@@ -84,8 +84,8 @@ func (node Logger_LogData) ToJson() string {
 
 // logger LogData反序列化方法
 // FromString
-func (node Logger_LogData) FromString(data []byte, index int) int {
-	return logDefine.FromString(data, index, &node)
+func (node *Logger_LogData) FromString(data []byte, index int) int {
+	return logDefine.FromString(data, index, node)
 }
 
 // FromJson
@@ -104,28 +104,15 @@ type Logger_sdkReco struct { // version 1
 
 // logger sdkReco序列化方法
 // ToString
-func (node Logger_sdkReco) ToString() string {
-	return node.ToAString(node.GetAppend())
+func (node *Logger_sdkReco) ToString() string {
+	return logDefine.ToString(node.GetAlias(), logDefine.GetTime(nil), *node)
 }
-func (node Logger_sdkReco) ToAString(arr []interface{}) string {
-	strlog := logDefine.ToString(node.Business, node.OauthInfo)
-	if len(arr) > 0 {
-		strlog = logDefine.ToString(arr...) + strlog
-	}
-	return strlog
-}
-func (node Logger_sdkReco) GetAlias() string {
+func (node *Logger_sdkReco) GetAlias() string {
 	return "sdk-reco"
-}
-func (node Logger_sdkReco) GetAppend() []interface{} {
-	return []interface{}{
-		node.GetAlias(),
-		logDefine.GetTime(nil),
-	}
 }
 
 // ToJson
-func (node Logger_sdkReco) ToJson() string {
+func (node *Logger_sdkReco) ToJson() string {
 	data, err := json.Marshal(node)
 	if err == nil {
 		return string(data)
@@ -135,17 +122,9 @@ func (node Logger_sdkReco) ToJson() string {
 
 // logger sdkReco反序列化方法
 // FromString
-func (node Logger_sdkReco) FromString(data []byte, index int) int {
-	var alias, stime string
-	return node.FromAString(data, index, &alias, &stime)
-}
-
-func (node Logger_sdkReco) FromAString(data []byte, index int, nodes ...interface{}) int {
-	slen := logDefine.FromString(data, index, nodes...)
-	if slen < len(data) {
-		return logDefine.FromString(data, slen, &node)
-	}
-	return slen
+func (node *Logger_sdkReco) FromString(data []byte, index int) (size int, alias, stime string) {
+	size = logDefine.FromString(data, index, &alias, &stime, node)
+	return
 }
 
 // FromJson
@@ -163,28 +142,15 @@ type Logger_cloudReco struct { // version 1
 
 // logger cloudReco序列化方法
 // ToString
-func (node Logger_cloudReco) ToString() string {
-	return node.ToAString(node.GetAppend())
+func (node *Logger_cloudReco) ToString() string {
+	return logDefine.ToString(node.GetAlias(), logDefine.GetTime(nil), *node)
 }
-func (node Logger_cloudReco) ToAString(arr []interface{}) string {
-	strlog := logDefine.ToString(node.Business)
-	if len(arr) > 0 {
-		strlog = logDefine.ToString(arr...) + strlog
-	}
-	return strlog
-}
-func (node Logger_cloudReco) GetAlias() string {
+func (node *Logger_cloudReco) GetAlias() string {
 	return "cloud-reco"
-}
-func (node Logger_cloudReco) GetAppend() []interface{} {
-	return []interface{}{
-		node.GetAlias(),
-		logDefine.GetTime(nil),
-	}
 }
 
 // ToJson
-func (node Logger_cloudReco) ToJson() string {
+func (node *Logger_cloudReco) ToJson() string {
 	data, err := json.Marshal(node)
 	if err == nil {
 		return string(data)
@@ -194,17 +160,9 @@ func (node Logger_cloudReco) ToJson() string {
 
 // logger cloudReco反序列化方法
 // FromString
-func (node Logger_cloudReco) FromString(data []byte, index int) int {
-	var alias, stime string
-	return node.FromAString(data, index, &alias, &stime)
-}
-
-func (node Logger_cloudReco) FromAString(data []byte, index int, nodes ...interface{}) int {
-	slen := logDefine.FromString(data, index, nodes...)
-	if slen < len(data) {
-		return logDefine.FromString(data, slen, &node)
-	}
-	return slen
+func (node *Logger_cloudReco) FromString(data []byte, index int) (size int, alias, stime string) {
+	size = logDefine.FromString(data, index, &alias, &stime, node)
+	return
 }
 
 // FromJson

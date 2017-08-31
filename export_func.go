@@ -39,15 +39,14 @@ func reflect2string(any interface{}) string {
 	case reflect.String:
 		return anyv.String()
 	case reflect.Struct, reflect.Ptr:
-		if anyv.IsValid() {
-			tfunc := anyv.MethodByName("ToString")
-			if tfunc.IsValid() {
-				rel := tfunc.Call([]reflect.Value{})
-				if len(rel) > 0 {
-					return fmt.Sprintf("(%s)", rel[0].String())
-				}
-			}
+		if anyk == reflect.Ptr {
+			anyv = reflect.Indirect(anyv)
 		}
+		ostr := "["
+		for i := 0; i < anyv.NumField(); i++ {
+			ostr = ostr + fmt.Sprintf("%s|", any2string(anyv.Field(i)))
+		}
+		return ostr + "]"
 	case reflect.Map:
 		ostr := "{"
 		for _, v := range anyv.MapKeys() {
@@ -208,10 +207,12 @@ func bytes2type(data []byte, index int, spkey byte, kind reflect.Kind, value ref
 	return index
 }
 
-func checkMove(data []byte, index *int, key byte) {
+func checkMove(data []byte, index *int, key byte) bool {
 	if index != nil && *index >= 0 && *index < len(data) && data[*index] == key {
 		*index++
+		return true
 	}
+	return false
 }
 
 func bytes2any(data []byte, index int, spkey byte, value reflect.Value) int {
@@ -221,6 +222,12 @@ func bytes2any(data []byte, index int, spkey byte, value reflect.Value) int {
 	case reflect.Array, reflect.Slice:
 		{
 			checkMove(data, &eindex, '[')
+			/*
+				for eindex < value.Len() {
+					if checkMove(data, &eindex, ']') == true {
+						break
+					}
+				}*/
 			for i := 0; i < value.Len(); i++ {
 				eindex = bytes2any(data, eindex, ',', value.Index(i))
 			}
@@ -239,9 +246,7 @@ func bytes2any(data []byte, index int, spkey byte, value reflect.Value) int {
 		{
 			checkMove(data, &eindex, '(')
 			for i := 0; i < value.NumField(); i++ {
-				member := value.Field(i)
-				eindex = bytes2any(data, eindex, 0, member)
-				fmt.Println(member)
+				eindex = bytes2any(data, eindex, 0, value.Field(i))
 			}
 			checkMove(data, &eindex, ')')
 		}

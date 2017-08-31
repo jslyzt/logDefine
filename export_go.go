@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"strings"
 )
 
 func gogetNodeType(node *XmlLogNode) string {
@@ -82,45 +81,24 @@ func gofmortDeffunc() string {
 // 序列化string
 func gofmortstrFuncStruct() string {
 	return `// ToString
-func (node #3#_#1#) ToString() string {
-	return logDefine.ToString(#2#)
+func (node *#2#_#1#) ToString() string {
+	return logDefine.ToString(node)
 }
 `
 }
 
 func gofmortstrFuncLog() string {
 	return `// ToString
-func (node #3#_#1#) ToString() string {
-	return node.ToAString(node.GetAppend())
+func (node *#2#_#1#) ToString() string {
+	return logDefine.ToString(node.GetAlias(), logDefine.GetTime(nil), *node)
 }
-func (node #3#_#1#) ToAString(arr []interface{}) string {
-	strlog := logDefine.ToString(#2#)
-	if len(arr) > 0 {
-		strlog = logDefine.ToString(arr...) + strlog
-	}
-	return strlog
-}
-func (node #3#_#1#) GetAlias() string {
-	return "#4#"
-}
-func (node #3#_#1#) GetAppend() []interface{} {
-	return []interface{}{
-		node.GetAlias(),
-		logDefine.GetTime(nil),
-	}
+func (node *#2#_#1#) GetAlias() string {
+	return "#3#"
 }
 `
 }
 
 func gofmort2String(file *XmlLogFile, info *XmlLogStruct, bstu bool) string {
-	var buffer bytes.Buffer
-	for _, node := range info.Nodes {
-		buffer.WriteString(fmt.Sprintf("node.%s, ", node.Name))
-	}
-	nodestr := buffer.String()
-	if len(nodestr) > 0 {
-		nodestr = strings.Trim(nodestr, ", ")
-	}
 	var fmortstr string
 	if bstu == true {
 		fmortstr = gofmortstrFuncStruct()
@@ -129,7 +107,6 @@ func gofmort2String(file *XmlLogFile, info *XmlLogStruct, bstu bool) string {
 	}
 	return replace(fmortstr, "#", []interface{}{
 		info.Name,
-		nodestr,
 		file.MName,
 		info.Alias,
 	})
@@ -138,7 +115,7 @@ func gofmort2String(file *XmlLogFile, info *XmlLogStruct, bstu bool) string {
 // 序列化json
 func gofmort2Json(file *XmlLogFile, info *XmlLogStruct) string {
 	return replace(`// ToJson
-func (node #2#_#1#) ToJson() string {
+func (node *#2#_#1#) ToJson() string {
 	data, err := json.Marshal(node)
 	if err == nil {
 		return string(data)
@@ -154,25 +131,17 @@ func (node #2#_#1#) ToJson() string {
 // 反序列化string
 func gofmortstrFuncUStruct() string {
 	return `// FromString
-func (node #2#_#1#) FromString(data []byte, index int) int  {
-	return logDefine.FromString(data, index, &node)
+func (node *#2#_#1#) FromString(data []byte, index int) int  {
+	return logDefine.FromString(data, index, node)
 }
 `
 }
 
 func gofmortstrFuncULog() string {
 	return `// FromString
-func (node #2#_#1#) FromString(data []byte, index int) int {
-	var alias, stime string
-	return node.FromAString(data, index, &alias, &stime)
-}
-
-func (node #2#_#1#) FromAString(data []byte, index int, nodes ...interface{}) int {
-	slen := logDefine.FromString(data, index, nodes...)
-	if slen < len(data) {
-		return logDefine.FromString(data, slen, &node)
-	}
-	return slen
+func (node *#2#_#1#) FromString(data []byte, index int) (size int, alias, stime string) {
+	size = logDefine.FromString(data, index, &alias, &stime, node)
+	return
 }
 `
 }
