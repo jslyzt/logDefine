@@ -336,6 +336,7 @@ func replace(source, skey string, args []interface{}) string {
 	return outstr
 }
 
+// ToString 序列化
 func ToString(args ...interface{}) string {
 	outstr := ""
 	for _, arg := range args {
@@ -344,6 +345,7 @@ func ToString(args ...interface{}) string {
 	return outstr
 }
 
+// FromString 反序列化
 func FromString(data []byte, index int, nodes ...interface{}) int {
 	dlen := len(data)
 	clen := index
@@ -378,10 +380,10 @@ func menberName(name string) string {
 	return string(keys)
 }
 
+// GetTime 时间戳转换时间字符串
 func GetTime(tm *time.Time) string {
 	if tm == nil {
 		return time.Now().Format(TIME_FORMATE_UNIX)
-	} else {
-		return tm.Format(TIME_FORMATE_UNIX)
 	}
+	return tm.Format(TIME_FORMATE_UNIX)
 }

@@ -107,7 +107,7 @@ func (file *XmlLogFile) analysis() error {
 	return nil
 }
 
-// 导出
+// Export 导出
 func (file *XmlLogFile) Export(types []int8, outdir string, appends map[string]interface{}) {
 	if file != nil {
 		for _, ntp := range types {
@@ -125,7 +125,7 @@ func (file *XmlLogFile) Export(types []int8, outdir string, appends map[string]i
 	}
 }
 
-// 分析文件
+// AnalysisFile 分析文件
 func AnalysisFile(file string) *XmlLogFile {
 	xmllog := &XmlLogFile{
 		file:  file,
