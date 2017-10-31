@@ -120,80 +120,64 @@ func getSplitData(data []byte, index int, key byte) (string, int) {
 	return "", bindex
 }
 
-func string2type(value string, kind reflect.Kind, anyv reflect.Value) {
+func int2type(biSize int, value *string, anyv reflect.Value) {
+	tvalue, err := strconv.ParseInt(*value, 10, biSize)
+	if err == nil {
+		anyv.SetInt(tvalue)
+	}
+}
+
+func uint2type(biSize int, value *string, anyv reflect.Value) {
+	tvalue, err := strconv.ParseUint(*value, 10, biSize)
+	if err == nil {
+		anyv.SetUint(tvalue)
+	}
+}
+
+func string2type(value *string, kind reflect.Kind, anyv reflect.Value) {
 	switch kind {
+	case reflect.Int:
+		int2type(32, value, anyv)
+	case reflect.Int8:
+		int2type(8, value, anyv)
+	case reflect.Int16:
+		int2type(16, value, anyv)
+	case reflect.Int32:
+		int2type(32, value, anyv)
+	case reflect.Int64:
+		int2type(64, value, anyv)
+	case reflect.Uint:
+		uint2type(32, value, anyv)
+	case reflect.Uint8:
+		uint2type(8, value, anyv)
+	case reflect.Uint16:
+		uint2type(16, value, anyv)
+	case reflect.Uint32:
+		uint2type(32, value, anyv)
+	case reflect.Uint64:
+		uint2type(64, value, anyv)
 	case reflect.Bool:
-		bvalue, err := strconv.ParseBool(value)
+		bvalue, err := strconv.ParseBool(*value)
 		if err == nil {
 			anyv.SetBool(bvalue)
 		}
-	case reflect.Int:
-		ivalue, err := strconv.ParseInt(value, 10, 32)
-		if err == nil {
-			anyv.SetInt(ivalue)
-		}
-	case reflect.Int8:
-		ivalue, err := strconv.ParseInt(value, 10, 8)
-		if err == nil {
-			anyv.SetInt(ivalue)
-		}
-	case reflect.Int16:
-		ivalue, err := strconv.ParseInt(value, 10, 16)
-		if err == nil {
-			anyv.SetInt(ivalue)
-		}
-	case reflect.Int32:
-		ivalue, err := strconv.ParseInt(value, 10, 32)
-		if err == nil {
-			anyv.SetInt(ivalue)
-		}
-	case reflect.Int64:
-		ivalue, err := strconv.ParseInt(value, 10, 64)
-		if err == nil {
-			anyv.SetInt(ivalue)
-		}
-	case reflect.Uint:
-		ivalue, err := strconv.ParseUint(value, 10, 32)
-		if err == nil {
-			anyv.SetUint(ivalue)
-		}
-	case reflect.Uint8:
-		ivalue, err := strconv.ParseUint(value, 10, 8)
-		if err == nil {
-			anyv.SetUint(ivalue)
-		}
-	case reflect.Uint16:
-		ivalue, err := strconv.ParseUint(value, 10, 16)
-		if err == nil {
-			anyv.SetUint(ivalue)
-		}
-	case reflect.Uint32:
-		ivalue, err := strconv.ParseUint(value, 10, 32)
-		if err == nil {
-			anyv.SetUint(ivalue)
-		}
-	case reflect.Uint64:
-		ivalue, err := strconv.ParseUint(value, 10, 64)
-		if err == nil {
-			anyv.SetUint(ivalue)
-		}
-	case reflect.Uintptr:
-		ivalue, err := strconv.ParseUint(value, 10, 64)
-		if err == nil {
-			anyv.Elem().SetUint(ivalue)
-		}
 	case reflect.Float32:
-		fvalue, err := strconv.ParseFloat(value, 32)
+		fvalue, err := strconv.ParseFloat(*value, 32)
 		if err == nil {
 			anyv.SetFloat(fvalue)
 		}
 	case reflect.Float64:
-		fvalue, err := strconv.ParseFloat(value, 64)
+		fvalue, err := strconv.ParseFloat(*value, 64)
 		if err == nil {
 			anyv.SetFloat(fvalue)
 		}
+	case reflect.Uintptr:
+		ivalue, err := strconv.ParseUint(*value, 10, 64)
+		if err == nil {
+			anyv.Elem().SetUint(ivalue)
+		}
 	case reflect.String:
-		anyv.SetString(value)
+		anyv.SetString(*value)
 	}
 }
 
@@ -203,7 +187,7 @@ func bytes2type(data []byte, index int, spkey byte, kind reflect.Kind, value ref
 	}
 	var svalue string
 	svalue, index = getSplitData(data, index, spkey)
-	string2type(svalue, kind, value)
+	string2type(&svalue, kind, value)
 	return index
 }
 
@@ -217,30 +201,34 @@ func checkMove(data []byte, index *int, key byte) bool {
 
 func bytes2any(data []byte, index int, spkey byte, value reflect.Value) int {
 	eindex := index
+	esize := len(data)
 	rvk := value.Type().Kind()
 	switch rvk {
 	case reflect.Array, reflect.Slice:
 		{
 			checkMove(data, &eindex, '[')
-			/*
-				for eindex < value.Len() {
-					if checkMove(data, &eindex, ']') == true {
-						break
-					}
-				}*/
-			for i := 0; i < value.Len(); i++ {
-				eindex = bytes2any(data, eindex, ',', value.Index(i))
+			for eindex < esize {
+				if checkMove(data, &eindex, ']') == true {
+					break
+				}
+				nlen := value.Len()
+				value.SetLen(nlen + 1)
+				eindex = bytes2any(data, eindex, ',', value.Index(nlen))
 			}
-			checkMove(data, &eindex, ']')
 		}
 	case reflect.Map:
 		{
 			checkMove(data, &eindex, '{')
-			for _, key := range value.MapKeys() {
-				eindex = bytes2any(data, eindex, ':', key)
-				eindex = bytes2any(data, eindex, ';', value.MapIndex(key))
+			for eindex < esize {
+				if checkMove(data, &eindex, '}') == true {
+					break
+				}
+				mkey := reflect.MakeMap(value.Type())
+				mvalue := reflect.MakeMap(value.Type())
+				eindex = bytes2any(data, eindex, ':', mkey)
+				eindex = bytes2any(data, eindex, ';', mvalue)
+				value.SetMapIndex(mkey, mvalue)
 			}
-			checkMove(data, &eindex, '}')
 		}
 	case reflect.Struct:
 		{
