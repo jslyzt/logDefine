@@ -68,12 +68,17 @@ func (node *XMLLogNode) analysis(file *XMLLogFile) {
 	node.Name = menberName(node.Xname)
 }
 
-func (info *XMLLogStruct) analysis(file *XMLLogFile) {
+func (info *XMLLogStruct) analysis(file *XMLLogFile, upname bool) {
 	for index := range info.Nodes {
 		info.Nodes[index].analysis(file)
 	}
 	if len(info.Alias) <= 0 {
 		info.Alias = strings.ToLower(info.Name)
+	}
+	if upname == true && len(info.Name) > 0 {
+		info.UName = strings.ToUpper(info.Name[:1]) + info.Name[1:]
+	} else {
+		info.UName = info.Name
 	}
 }
 
@@ -98,11 +103,11 @@ func (file *XMLLogFile) analysis() error {
 	file.MName = menberName(file.Name)
 	for index := range file.Stus {
 		node := &file.Stus[index]
-		node.analysis(file)
+		node.analysis(file, false)
 		file.StuMp[node.Name] = node
 	}
 	for index := range file.Logs {
-		file.Logs[index].analysis(file)
+		file.Logs[index].analysis(file, true)
 	}
 	return nil
 }

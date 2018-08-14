@@ -53,6 +53,7 @@ type XMLLogNodes []XMLLogNode
 // XMLLogStruct 日志描述定义
 type XMLLogStruct struct {
 	Name    string      `xml:"name,attr"`    // 名字
+	UName   string      `xml:"uname,attr"`   // 名字
 	Alias   string      `xml:"alias,attr"`   // 别名
 	Version int16       `xml:"version,attr"` // 版本号
 	Desc    string      `xml:"desc,attr"`    // 说明

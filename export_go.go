@@ -57,7 +57,7 @@ type #2# struct {	// version #3#
 }
 `, "#", []interface{}{
 		file.Name,
-		info.Name,
+		info.UName,
 		info.Version,
 		info.Desc,
 		buffer.String(),
@@ -101,7 +101,7 @@ func gofmort2String(file *XMLLogFile, info *XMLLogStruct, bstu bool) string {
 		fmortstr = gofmortstrFuncLog()
 	}
 	return replace(fmortstr, "#", []interface{}{
-		info.Name,
+		info.UName,
 		info.Alias,
 	})
 }
@@ -117,7 +117,7 @@ func (node *#1#) ToJSON() string {
 	return ""
 }
 `, "#", []interface{}{
-		info.Name,
+		info.UName,
 	})
 }
 
@@ -147,18 +147,18 @@ func gofmortFString(file *XMLLogFile, info *XMLLogStruct, bstu bool) string {
 		fmortstr = gofmortstrFuncULog()
 	}
 	return replace(fmortstr, "#", []interface{}{
-		info.Name,
+		info.UName,
 	})
 }
 
 // 反序列化json
 func gofmortFJson(file *XMLLogFile, info *XMLLogStruct) string {
 	return replace(`// FromJSON json初始化
-func (node *#2#_#1#) FromJSON(data []byte)  {
+func (node *#1#) FromJSON(data []byte)  {
 	json.Unmarshal(data, *node)
 }
 `, "#", []interface{}{
-		info.Name,
+		info.UName,
 	})
 }
 
@@ -174,7 +174,7 @@ func gofmortStrfunc(file *XMLLogFile, info *XMLLogStruct, bstu bool) string {
 #4#
 `, "#", []interface{}{
 		file.Name,
-		info.Name,
+		info.UName,
 		gofmort2String(file, info, bstu) + gofmort2Json(file, info),
 		gofmortFString(file, info, bstu) + gofmortFJson(file, info),
 	})
