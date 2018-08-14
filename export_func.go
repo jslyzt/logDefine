@@ -1,4 +1,4 @@
-package logDefine
+package logdefine
 
 import (
 	"fmt"
@@ -371,7 +371,7 @@ func menberName(name string) string {
 // GetTime 时间戳转换时间字符串
 func GetTime(tm *time.Time) string {
 	if tm == nil {
-		return time.Now().Format(TIME_FORMATE_UNIX)
+		return time.Now().Format(TimeFormateUnix)
 	}
-	return tm.Format(TIME_FORMATE_UNIX)
+	return tm.Format(TimeFormateUnix)
 }

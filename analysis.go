@@ -1,4 +1,4 @@
-package logDefine
+package logdefine
 
 import (
 	"encoding/xml"
@@ -10,28 +10,28 @@ import (
 )
 
 // 工具函数
-func (node *XmlLogNode) alsisStuType(file *XmlLogFile) {
-	node.Type = T_USERDEF
-	node.UDType = UDT_NONE
+func (node *XMLLogNode) alsisStuType(file *XMLLogFile) {
+	node.Type = TUserDef
+	node.UDType = UDTnone
 	if len(file.StuMp) > 0 {
 		keys := []byte(node.SType)
 		lkey := len(keys)
 		tkey := node.SType
 		if lkey > 2 && keys[0] == '[' && keys[1] == ']' { // 数组
 			tkey = string(keys[2:])
-			node.UDType = UDT_LIST
+			node.UDType = UDTlist
 			if lkey > 3 && keys[2] == '*' {
 				tkey = string(keys[3:])
-				node.UDType = UDT_PLIST
+				node.UDType = UDTplist
 			}
 		} else if lkey > 4 && string(keys[:4]) == "map[" { // map
 			mindex := strings.Index(node.SType, "]")
 			if mindex >= 0 {
 				tkey = string(keys[mindex+1:])
-				node.UDType = UDT_MAP
+				node.UDType = UDTmap
 				if len(tkey) > 0 && keys[mindex+2] == '*' {
 					tkey = string(keys[mindex+2:])
-					node.UDType = UDT_PMAP
+					node.UDType = UDTpmap
 				}
 			}
 		}
@@ -43,24 +43,24 @@ func (node *XmlLogNode) alsisStuType(file *XmlLogFile) {
 	}
 }
 
-func (node *XmlLogNode) analysis(file *XmlLogFile) {
+func (node *XMLLogNode) analysis(file *XMLLogFile) {
 	switch node.SType {
 	case "string":
-		node.Type = T_STRING
+		node.Type = TString
 	case "int":
-		node.Type = T_INT
+		node.Type = TInt
 	case "float":
-		node.Type = T_FLOAT
+		node.Type = TFloat
 	case "double":
-		node.Type = T_DOUBLE
+		node.Type = TDouble
 	case "datetime":
-		node.Type = T_DATETIME
+		node.Type = TDateTime
 	case "bool":
-		node.Type = T_BOOL
+		node.Type = TBool
 	case "short":
-		node.Type = T_SHORT
+		node.Type = TShort
 	case "long":
-		node.Type = T_LONG
+		node.Type = TLong
 	default:
 		node.alsisStuType(file)
 	}
@@ -68,7 +68,7 @@ func (node *XmlLogNode) analysis(file *XmlLogFile) {
 	node.Name = menberName(node.Xname)
 }
 
-func (info *XmlLogStruct) analysis(file *XmlLogFile) {
+func (info *XMLLogStruct) analysis(file *XMLLogFile) {
 	for index := range info.Nodes {
 		info.Nodes[index].analysis(file)
 	}
@@ -78,7 +78,7 @@ func (info *XmlLogStruct) analysis(file *XmlLogFile) {
 }
 
 // 分析
-func (file *XmlLogFile) analysis() error {
+func (file *XMLLogFile) analysis() error {
 	if file == nil || len(file.file) <= 0 {
 		return errors.New("file is nil")
 	}
@@ -108,15 +108,15 @@ func (file *XmlLogFile) analysis() error {
 }
 
 // Export 导出
-func (file *XmlLogFile) Export(types []int8, outdir string, appends map[string]interface{}) {
+func (file *XMLLogFile) Export(types []int8, outdir string, appends map[string]interface{}) {
 	if file != nil {
 		for _, ntp := range types {
 			switch ntp {
-			case ET_GO:
+			case ETgo:
 				file.exportGo(outdir)
-			case ET_CPP:
+			case ETcpp:
 				file.exportCpp(outdir, appends)
-			case ET_JAVA:
+			case ETjava:
 				file.exportJava(outdir)
 			default:
 				fmt.Printf("no support export type: %d\n", ntp)
@@ -126,12 +126,12 @@ func (file *XmlLogFile) Export(types []int8, outdir string, appends map[string]i
 }
 
 // AnalysisFile 分析文件
-func AnalysisFile(file string) *XmlLogFile {
-	xmllog := &XmlLogFile{
+func AnalysisFile(file string) *XMLLogFile {
+	xmllog := &XMLLogFile{
 		file:  file,
-		Stus:  make(XmlLogStructs, 0),
-		Logs:  make(XmlLogStructs, 0),
-		StuMp: make(XmlLogStrMap, 0),
+		Stus:  make(XMLLogStructs, 0),
+		Logs:  make(XMLLogStructs, 0),
+		StuMp: make(XMLLogStrMap, 0),
 	}
 	err := xmllog.analysis()
 	if err != nil {

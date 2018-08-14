@@ -1,4 +1,4 @@
-package logDefine
+package logdefine
 
 import (
 	"encoding/json"
@@ -11,7 +11,7 @@ type TestStruct struct {
 	Value int
 }
 
-func printJson(val interface{}) []byte {
+func printJSON(val interface{}) []byte {
 	data, err := json.Marshal(val)
 	if err == nil {
 		fmt.Println(string(data))
@@ -26,24 +26,24 @@ func Test_struct2map(t *testing.T) {
 		Value: 1,
 	})
 	mpt1 := &TestStruct{}
-	json.Unmarshal(printJson(mp1), mpt1)
+	json.Unmarshal(printJSON(mp1), mpt1)
 
 	mp2 := struct2map(map[int]interface{}{
 		1: "111",
 		2: 2,
 	})
-	printJson(mp2)
+	printJSON(mp2)
 }
 
 func Test_Base(t *testing.T) {
 
 	sinfo := []byte("1.1|2|{aaa:10;}")
 	index := 0
-	var x float64 = 3.4
+	x := 3.4
 	index = bytes2anyptr(sinfo, index, &x, 0)
-	var y int = 0
+	y := 0
 	index = bytes2anyptr(sinfo, index, &y, 0)
-	var mp map[string]int = make(map[string]int)
+	mp := make(map[string]int)
 	index = bytes2anyptr(sinfo, index, &mp, 0)
 	fmt.Println(x, y)
 }

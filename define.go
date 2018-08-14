@@ -1,39 +1,43 @@
-package logDefine
+package logdefine
 
 import "encoding/xml"
 
+// 常量定义
 const (
-	T_INT      int8 = iota // int
-	T_FLOAT                // float
-	T_DOUBLE               // double
-	T_STRING               // string
-	T_DATETIME             // 时间日期
-	T_BOOL                 // 布尔类型
-	T_SHORT                // 短整型
-	T_LONG                 // 长整型
-	T_USERDEF              // 自定义类型
+	TInt      int8 = iota // int
+	TFloat                // float
+	TDouble               // double
+	TString               // string
+	TDateTime             // 时间日期
+	TBool                 // 布尔类型
+	TShort                // 短整型
+	TLong                 // 长整型
+	TUserDef              // 自定义类型
 )
 
+// 常量定义
 const (
-	ET_GO   int8 = iota // 导出go
-	ET_CPP              // 导出c++
-	ET_JAVA             // 导出java
+	ETgo   int8 = iota // 导出go
+	ETcpp              // 导出c++
+	ETjava             // 导出java
 )
 
+// 常量定义
 const (
-	UDT_NONE  int8 = iota // 无
-	UDT_LIST              // 列表
-	UDT_PLIST             // 指针列表
-	UDT_MAP               // 键值对
-	UDT_PMAP              // 指针键值对
+	UDTnone  int8 = iota // 无
+	UDTlist              // 列表
+	UDTplist             // 指针列表
+	UDTmap               // 键值对
+	UDTpmap              // 指针键值对
 )
 
+// 变量定义
 var (
-	TIME_FORMATE_UNIX = "2006-01-02T15:04:05+08:00"
+	TimeFormateUnix = "2006-01-02T15:04:05+08:00"
 )
 
-// XmlLogNode 节点定义
-type XmlLogNode struct {
+// XMLLogNode 节点定义
+type XMLLogNode struct {
 	Xname string `xml:"name,attr"` // 节点名字
 	Name  string // 真正名字
 	SType string `xml:"type,attr"` // 节点类型 -- xml
@@ -43,32 +47,32 @@ type XmlLogNode struct {
 	UDType int8   // 扩展类型
 }
 
-// XmlLogNodes 节点数组定义
-type XmlLogNodes []XmlLogNode
+// XMLLogNodes 节点数组定义
+type XMLLogNodes []XMLLogNode
 
-// XmlLogStruct 日志描述定义
-type XmlLogStruct struct {
+// XMLLogStruct 日志描述定义
+type XMLLogStruct struct {
 	Name    string      `xml:"name,attr"`    // 名字
 	Alias   string      `xml:"alias,attr"`   // 别名
 	Version int16       `xml:"version,attr"` // 版本号
 	Desc    string      `xml:"desc,attr"`    // 说明
-	Nodes   XmlLogNodes `xml:"entry"`        // 节点列表
+	Nodes   XMLLogNodes `xml:"entry"`        // 节点列表
 }
 
-// XmlLogStructs 日志描述数组定义
-type XmlLogStructs []XmlLogStruct
+// XMLLogStructs 日志描述数组定义
+type XMLLogStructs []XMLLogStruct
 
-// XmlLogStrMap 日志描述map定义
-type XmlLogStrMap map[string]*XmlLogStruct
+// XMLLogStrMap 日志描述map定义
+type XMLLogStrMap map[string]*XMLLogStruct
 
-// XmlLogFile 日志文件定义
-type XmlLogFile struct {
+// XMLLogFile 日志文件定义
+type XMLLogFile struct {
 	file    string        // 日志文件
 	XMLName xml.Name      `xml:"logs"`         // 入口节点
 	Version int16         `xml:"version,attr"` // 版本号
 	Name    string        `xml:"name,attr"`    // 名字
 	MName   string        // 大写名字
-	Stus    XmlLogStructs `xml:"struct"` // 日志结构数组
-	Logs    XmlLogStructs `xml:"log"`    // 日志数组
-	StuMp   XmlLogStrMap  // 日志结构map
+	Stus    XMLLogStructs `xml:"struct"` // 日志结构数组
+	Logs    XMLLogStructs `xml:"log"`    // 日志数组
+	StuMp   XMLLogStrMap  // 日志结构map
 }

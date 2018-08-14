@@ -1,10 +1,11 @@
-package logDefine
+package logdefine
 
 import (
 	"bytes"
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/djimenez/iconv-go"
@@ -32,19 +33,19 @@ func cppGetMapValue(tp string) string {
 
 func cppGetType(key string, tp int8) string {
 	switch tp {
-	case UDT_LIST:
+	case UDTlist:
 		keys := []byte(key)
 		return fmt.Sprintf("std::list<%s>", cppGetMapValue(string(keys[2:])))
-	case UDT_PLIST:
+	case UDTplist:
 		keys := []byte(key)
 		return fmt.Sprintf("std::list<%s*>", cppGetMapValue(string(keys[3:])))
-	case UDT_MAP:
+	case UDTmap:
 		keys := []byte(key)
 		index := strings.Index(key, "]")
 		if index >= 0 {
 			return fmt.Sprintf("std::map<%s, %s>", cppGetMapValue(string(keys[4:index])), cppGetMapValue(string(keys[index+1:])))
 		}
-	case UDT_PMAP:
+	case UDTpmap:
 		keys := []byte(key)
 		index := strings.Index(key, "]")
 		if index >= 0 {
@@ -54,30 +55,30 @@ func cppGetType(key string, tp int8) string {
 	return key
 }
 
-func cppgetNodeType(node *XmlLogNode) (string, string) {
+func cppgetNodeType(node *XMLLogNode) (string, string) {
 	if node != nil {
 		switch node.Type {
-		case T_INT:
+		case TInt:
 			return "int32_t", ""
-		case T_FLOAT:
+		case TFloat:
 			return "float", ""
-		case T_DOUBLE:
+		case TDouble:
 			return "double", ""
-		case T_STRING:
+		case TString:
 			return "std::string", ""
-		case T_DATETIME:
+		case TDateTime:
 			return "int64_t", ""
-		case T_BOOL:
+		case TBool:
 			return "bool", ""
-		case T_SHORT:
+		case TShort:
 			return "short_t", ""
-		case T_LONG:
+		case TLong:
 			return "long_t", ""
-		case T_USERDEF:
+		case TUserDef:
 			switch node.UDType {
-			case UDT_LIST, UDT_PLIST:
+			case UDTlist, UDTplist:
 				return cppGetType(node.SType, node.UDType), "list"
-			case UDT_MAP, UDT_PMAP:
+			case UDTmap, UDTpmap:
 				return cppGetType(node.SType, node.UDType), "map"
 			default:
 				return node.SType, ""
@@ -88,7 +89,7 @@ func cppgetNodeType(node *XmlLogNode) (string, string) {
 }
 
 // 序列化结构
-func cppfmortStruct(file *XmlLogFile, info *XmlLogStruct, incs *map[string]bool) string {
+func cppfmortStruct(file *XMLLogFile, info *XMLLogStruct, incs *map[string]bool) string {
 	complexTypes := make(map[string]string)
 	var buffer, complexs bytes.Buffer
 	for index, node := range info.Nodes {
@@ -140,7 +141,7 @@ struct #1# {	// version #2#
 }
 
 // 结构序列化方法
-func cppfmortStrfunc(file *XmlLogFile, info *XmlLogStruct) string {
+func cppfmortStrfunc(file *XMLLogFile, info *XMLLogStruct) string {
 	var buffer bytes.Buffer
 	for _, node := range info.Nodes {
 		buffer.WriteString(fmt.Sprintf("%s, ", node.Xname))
@@ -172,7 +173,7 @@ void #1#::logEntrance(const std::string& str, size_t size, size_t* index) {
 }
 
 // c++文件序列化方法
-func cppfmortLogfile(file *XmlLogFile, includes []string) (string, string) {
+func cppfmortLogfile(file *XMLLogFile, includes []string) (string, string) {
 	incs := make(map[string]bool)
 	var bufStuH, bufStuF bytes.Buffer
 	for _, node := range file.Stus {
@@ -249,6 +250,7 @@ func saveFile(sdata, name, charset string) {
 
 	}
 
+	os.MkdirAll(filepath.Dir(name), os.ModePerm)
 	err := ioutil.WriteFile(name, []byte(outstr.String()), os.ModePerm)
 	if err != nil {
 		fmt.Printf("save file %s failed, error %v", name, err)
@@ -257,7 +259,7 @@ func saveFile(sdata, name, charset string) {
 }
 
 // 导出 golang
-func (file *XmlLogFile) exportCpp(outdir string, appends map[string]interface{}) bool {
+func (file *XMLLogFile) exportCpp(outdir string, appends map[string]interface{}) bool {
 	charset := ""
 	any, ok := appends["charset"]
 	if ok {

@@ -7,7 +7,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/jslyzt/logDefine"
+	"github.com/jslyzt/logdefine"
 )
 
 func main() {
@@ -27,24 +27,24 @@ func main() {
 	exportModel := make([]int8, 0)
 	if outModel == nil || *outModel == "go;cpp;java" {
 		exportModel = []int8{
-			logDefine.ET_GO,
-			logDefine.ET_CPP,
-			logDefine.ET_JAVA,
+			logdefine.ETgo,
+			logdefine.ETcpp,
+			logdefine.ETjava,
 		}
 	} else {
 		for _, model := range strings.Split(*outModel, ";") {
 			switch model {
 			case "go":
-				exportModel = append(exportModel, logDefine.ET_GO)
+				exportModel = append(exportModel, logdefine.ETgo)
 			case "cpp":
-				exportModel = append(exportModel, logDefine.ET_CPP)
+				exportModel = append(exportModel, logdefine.ETcpp)
 			case "java":
-				exportModel = append(exportModel, logDefine.ET_JAVA)
+				exportModel = append(exportModel, logdefine.ETjava)
 			}
 		}
 	}
 	appends := make(map[string]interface{})
-	if incs != nil {
+	if incs != nil && len(*incs) > 0 {
 		appends["includes"] = strings.Split(*incs, ";")
 	}
 	if outCSet != nil {
@@ -52,7 +52,7 @@ func main() {
 	}
 
 	if fileName != nil && len(*fileName) > 0 {
-		logfile := logDefine.AnalysisFile(*fileName)
+		logfile := logdefine.AnalysisFile(*fileName)
 		if logfile != nil {
 			logfile.Export(exportModel, *outDir, appends)
 		}
@@ -65,7 +65,7 @@ func main() {
 		}
 		for _, file := range dir {
 			if file.IsDir() == false && strings.HasSuffix(strings.ToLower(file.Name()), ".xml") == true {
-				logfile := logDefine.AnalysisFile(file.Name())
+				logfile := logdefine.AnalysisFile(file.Name())
 				if logfile != nil {
 					logfile.Export(exportModel, *outDir, appends)
 				}

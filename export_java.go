@@ -1,18 +1,19 @@
-package logDefine
+package logdefine
 
 import (
 	"bytes"
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
 // 导出入口文件
-func (file *XmlLogFile) javafmortEntrance(outdir string) {
+func (file *XMLLogFile) javafmortEntrance(outdir string) {
 	modelName := file.Name
 	baseName := file.MName
-	fileName := fmt.Sprintf("%s/%s.java", outdir, baseName)
+	fileName := fmt.Sprintf("%s/%s/%s.java", outdir, modelName, baseName)
 	fmt.Printf("save file: %s\n", fileName)
 
 	casestr := ""
@@ -23,7 +24,7 @@ func (file *XmlLogFile) javafmortEntrance(outdir string) {
             }
 `, "#", []interface{}{
 				node.Alias,
-				fmt.Sprintf("%s_%s", baseName, node.Name),
+				node.Name,
 			})
 	}
 
@@ -50,6 +51,7 @@ public class #2# {
 			casestr,
 		})
 
+	os.MkdirAll(filepath.Dir(fileName), os.ModePerm)
 	err := ioutil.WriteFile(fileName, []byte(basestr), os.ModePerm)
 	if err != nil {
 		fmt.Printf("save file %s failed, error %v", fileName, err)
@@ -57,8 +59,8 @@ public class #2# {
 }
 
 // 类导出共用方法
-func javafmortSave(outdir, data string, file *XmlLogFile, info *XmlLogStruct) {
-	fileName := fmt.Sprintf("%s/%s_%s.java", outdir, file.MName, info.Name)
+func javafmortSave(outdir, data string, file *XMLLogFile, info *XMLLogStruct) {
+	fileName := fmt.Sprintf("%s/%s/%s.java", outdir, file.Name, info.Name)
 	fmt.Printf("save file: %s\n", fileName)
 	err := ioutil.WriteFile(fileName, []byte(data), os.ModePerm)
 	if err != nil {
@@ -86,19 +88,19 @@ func javaGetMapValue(tp string) string {
 
 func javeGetType(key string, tp int8) string {
 	switch tp {
-	case UDT_LIST:
+	case UDTlist:
 		keys := []byte(key)
 		return fmt.Sprintf("List<%s>", javaGetMapValue(string(keys[2:])))
-	case UDT_PLIST:
+	case UDTplist:
 		keys := []byte(key)
 		return fmt.Sprintf("List<%s>", javaGetMapValue(string(keys[3:])))
-	case UDT_MAP:
+	case UDTmap:
 		keys := []byte(key)
 		index := strings.Index(key, "]")
 		if index >= 0 {
 			return fmt.Sprintf("Map<%s, %s>", javaGetMapValue(string(keys[4:index])), javaGetMapValue(string(keys[index+1:])))
 		}
-	case UDT_PMAP:
+	case UDTpmap:
 		keys := []byte(key)
 		index := strings.Index(key, "]")
 		if index >= 0 {
@@ -108,30 +110,30 @@ func javeGetType(key string, tp int8) string {
 	return key
 }
 
-func javaGetNodeType(node *XmlLogNode) (string, string) {
+func javaGetNodeType(node *XMLLogNode) (string, string) {
 	if node != nil {
 		switch node.Type {
-		case T_INT:
+		case TInt:
 			return "int", ""
-		case T_FLOAT:
+		case TFloat:
 			return "float", ""
-		case T_DOUBLE:
+		case TDouble:
 			return "double", ""
-		case T_STRING:
+		case TString:
 			return "String", ""
-		case T_DATETIME:
+		case TDateTime:
 			return "long", ""
-		case T_BOOL:
+		case TBool:
 			return "boolean", ""
-		case T_SHORT:
+		case TShort:
 			return "short", ""
-		case T_LONG:
+		case TLong:
 			return "long", ""
-		case T_USERDEF:
+		case TUserDef:
 			switch node.UDType {
-			case UDT_LIST, UDT_PLIST:
+			case UDTlist, UDTplist:
 				return javeGetType(node.SType, node.UDType), "java.util.List"
-			case UDT_MAP, UDT_PMAP:
+			case UDTmap, UDTpmap:
 				return javeGetType(node.SType, node.UDType), "java.util.Map"
 			default:
 				return node.SType, ""
@@ -141,7 +143,7 @@ func javaGetNodeType(node *XmlLogNode) (string, string) {
 	return "", ""
 }
 
-func javafmortMembers(info *XmlLogStruct) (string, string) {
+func javafmortMembers(info *XMLLogStruct) (string, string) {
 	var bfimport bytes.Buffer
 	var bfmember bytes.Buffer
 	importmap := make(map[string]bool)
@@ -160,7 +162,7 @@ func javafmortMembers(info *XmlLogStruct) (string, string) {
 	return bfimport.String(), bfmember.String()
 }
 
-func javafmortTostring(info *XmlLogStruct) string {
+func javafmortTostring(info *XMLLogStruct) string {
 	var bfstring bytes.Buffer
 	index := 0
 	for _, node := range info.Nodes {
@@ -175,26 +177,25 @@ func javafmortTostring(info *XmlLogStruct) string {
 }
 
 // 导出struct文件
-func javafmortStruct(outdir string, file *XmlLogFile, info *XmlLogStruct) {
+func javafmortStruct(outdir string, file *XMLLogFile, info *XMLLogStruct) {
 	imports, members := javafmortMembers(info)
 	tostring := javafmortTostring(info)
 	javafmortSave(outdir, replace(
 		`package com.hiscene.common.#1#;
 
 #2#
-public class #3#_#4# {
-#5#
+public class #3# {
+#4#
 
     public String toString() {
         FStringWriter writer = new FStringWriter();
-#6#
+#5#
         return writer.toString();
     }
 }
 `, "#", []interface{}{
 			file.Name,
 			imports,
-			file.MName,
 			info.Name,
 			members,
 			tostring,
@@ -202,7 +203,7 @@ public class #3#_#4# {
 }
 
 // 导出log文件
-func javafmortLog(outdir string, file *XmlLogFile, info *XmlLogStruct) {
+func javafmortLog(outdir string, file *XMLLogFile, info *XMLLogStruct) {
 	imports, members := javafmortMembers(info)
 	tostring := javafmortTostring(info)
 	javafmortSave(outdir, replace(`
@@ -211,9 +212,9 @@ package com.hiscene.common.#1#;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 #2#
-public class #3#_#4# {
-#5#
-    private static Type typeToken = new TypeToken<#3#_#4#>(){}.getType();
+public class #3# {
+#4#
+    private static Type typeToken = new TypeToken<#3#>(){}.getType();
 
     public static Type GetType() {
         return typeToken;
@@ -221,14 +222,13 @@ public class #3#_#4# {
 
     public String toString() {
         FStringWriter writer = new FStringWriter();
-#6#
+#5#
         return String.format("(%s)", writer.toString());
     }
 }
 `, "#", []interface{}{
 		file.Name,
 		imports,
-		file.MName,
 		info.Name,
 		members,
 		tostring,
@@ -236,7 +236,7 @@ public class #3#_#4# {
 }
 
 // 导出 java
-func (file *XmlLogFile) exportJava(outdir string) bool {
+func (file *XMLLogFile) exportJava(outdir string) bool {
 	file.javafmortEntrance(outdir)
 
 	for _, node := range file.Stus {
