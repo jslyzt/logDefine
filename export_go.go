@@ -51,7 +51,8 @@ func gofmortStruct(file *XMLLogFile, info *XMLLogStruct) string {
 	return replace(`
 // --------------------------------------------------------------------
 // #1# #2#结构定义
-// #4#
+
+// #2# #4#
 type #2# struct {	// version #3#
 #5#
 }
@@ -68,7 +69,7 @@ type #2# struct {	// version #3#
 func gofmortDeffunc() string {
 	return `
 	import(
-		"github.com/jslyzt/logdefine"
+		logDefine "github.com/jslyzt/logdefine"
 	)
 	`
 }
@@ -77,7 +78,7 @@ func gofmortDeffunc() string {
 func gofmortstrFuncStruct() string {
 	return `// ToString 转换string
 func (node *#1#) ToString() string {
-	return logdefine.ToString(node)
+	return logDefine.ToString(node)
 }
 `
 }
@@ -85,8 +86,10 @@ func (node *#1#) ToString() string {
 func gofmortstrFuncLog() string {
 	return `// ToString 转换string
 func (node *#1#) ToString() string {
-	return logdefine.ToString(node.GetAlias(), logdefine.GetTime(nil), *node)
+	return logDefine.ToString(node.GetAlias(), logDefine.GetTime(nil), *node)
 }
+
+// GetAlias 获取别名
 func (node *#1#) GetAlias() string {
 	return "#2#"
 }
@@ -125,7 +128,7 @@ func (node *#1#) ToJSON() string {
 func gofmortstrFuncUStruct() string {
 	return `// FromString string初始化
 func (node *#1#) FromString(data []byte, index int) int  {
-	return logdefine.FromString(data, index, node)
+	return logDefine.FromString(data, index, node)
 }
 `
 }
@@ -133,7 +136,7 @@ func (node *#1#) FromString(data []byte, index int) int  {
 func gofmortstrFuncULog() string {
 	return `// FromString string初始化
 func (node *#1#) FromString(data []byte, index int) (size int, alias, stime string) {
-	size = logdefine.FromString(data, index, &alias, &stime, node)
+	size = logDefine.FromString(data, index, &alias, &stime, node)
 	return
 }
 `
