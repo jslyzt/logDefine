@@ -20,6 +20,7 @@ const (
 	ETgo   int8 = iota // 导出go
 	ETcpp              // 导出c++
 	ETjava             // 导出java
+	ETjs               // 导出JavaScript
 )
 
 // 常量定义

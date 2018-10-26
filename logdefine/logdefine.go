@@ -14,7 +14,7 @@ func main() {
 	fileName := flag.String("file", "template.xml", "please input the xml file to analysis")
 	outDir := flag.String("odir", "./out", "please input the dir out file to store")
 	fileDir := flag.String("idir", "", "please input the dir files to analysis")
-	outModel := flag.String("model", "go;cpp;java", "please input the file type to export")
+	outModel := flag.String("model", "go;cpp;java;js", "please input the file type to export")
 	outCSet := flag.String("charset", "utf-8", "please input the output charset")
 	incs := flag.String("inc", "", "please input the include files")
 	flag.Parse()
@@ -30,6 +30,7 @@ func main() {
 			logdefine.ETgo,
 			logdefine.ETcpp,
 			logdefine.ETjava,
+			logdefine.ETjs,
 		}
 	} else {
 		for _, model := range strings.Split(*outModel, ";") {
@@ -40,6 +41,8 @@ func main() {
 				exportModel = append(exportModel, logdefine.ETcpp)
 			case "java":
 				exportModel = append(exportModel, logdefine.ETjava)
+			case "js":
+				exportModel = append(exportModel, logdefine.ETjs)
 			}
 		}
 	}

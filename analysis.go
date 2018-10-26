@@ -123,6 +123,8 @@ func (file *XMLLogFile) Export(types []int8, outdir string, appends map[string]i
 				file.exportCpp(outdir, appends)
 			case ETjava:
 				file.exportJava(outdir)
+			case ETjs:
+				file.exportJS(outdir)
 			default:
 				fmt.Printf("no support export type: %d\n", ntp)
 			}
