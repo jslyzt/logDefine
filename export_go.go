@@ -158,7 +158,7 @@ func gofmortFString(file *XMLLogFile, info *XMLLogStruct, bstu bool) string {
 func gofmortFJson(file *XMLLogFile, info *XMLLogStruct) string {
 	return replace(`// FromJSON json初始化
 func (node *#1#) FromJSON(data []byte)  {
-	json.Unmarshal(data, *node)
+	json.Unmarshal(data, node)
 }
 `, "#", []interface{}{
 		info.UName,
